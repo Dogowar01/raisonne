@@ -67,10 +67,13 @@ Tuned to the **Signal9 Studio aesthetic**: beauty-in-darkness, warm and atmosphe
   atmospheric radial glows, a soft vignette, and a runtime-generated **film-grain** overlay so
   surfaces feel like canvas rather than flat fills. Verdigris + oxblood, plus a **brass/amber**
   accent for highlights.
-- **Type:** italic **Playfair Display** for the wordmark, section headers and plate titles;
-  Spectral for prose; JetBrains Mono for all ledger data.
-- **Signal9 mark:** a nine-bar "signal" logomark (brass, softly glowing) sits in the masthead
-  beside the Raisonné wordmark, tying the register to the studio.
+- **Type:** italic **Fraunces** (a modern high-contrast serif) for the wordmark, section headers
+  and plate titles; **Space Grotesk** for UI and prose; JetBrains Mono for all ledger data.
+- **Fracture motif** (Signal9's theme): the top bar carries a bold brass→verdigris **gradient**
+  under a generated **cracked-glass** overlay, and the logomark is a nine-bar signal **displaced
+  along a diagonal fault line**.
+- **Depth:** the masthead and toolbar are raised with layered shadows; plates sit on a 3D
+  perspective and **tilt and lift on hover**.
 - **Per-image palette:** every card reflects the colours of *its own artwork*. Each preview is
   sampled for up to four dominant tones (muted into the theme) and shown as a full-width **colour
   strip** across the top of the plate, with the card's mount, image matte and border **washed in
