@@ -1,0 +1,11 @@
+# Local Claude Code tooling (preview server config, etc.)
+.claude/
+
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/

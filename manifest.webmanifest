@@ -1,0 +1,20 @@
+{
+  "name": "Raisonné — Signal9 Studio",
+  "short_name": "Raisonné",
+  "description": "A registrar's ledger for Signal9 Studio fine-art print editions.",
+  "start_url": "raisonne.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#e8e7e1",
+  "theme_color": "#e8e7e1",
+  "categories": ["productivity", "art"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Raisonné">
+  <!-- verdigris tile, cream serif monogram inside a plate-mark frame -->
+  <rect width="512" height="512" fill="#46595b"/>
+  <rect x="72" y="72" width="368" height="368" fill="none" stroke="#f3f2ed" stroke-opacity="0.32" stroke-width="2"/>
+  <text x="256" y="268" fill="#f3f2ed" text-anchor="middle" dominant-baseline="central"
+        font-family="Georgia, 'Times New Roman', serif" font-size="288" font-weight="500">R</text>
+</svg>
