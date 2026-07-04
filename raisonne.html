@@ -85,6 +85,7 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
   flex-wrap:wrap;
 }
 .wordmark{display:flex;align-items:baseline;gap:12px;margin-right:auto}
+.mark{width:26px;height:18px;flex:0 0 auto;align-self:center;fill:var(--accent)}
 .wordmark h1{
   font-family:var(--serif);font-weight:500;font-size:30px;letter-spacing:.02em;
   margin:0;line-height:1;
@@ -155,14 +156,19 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
   color:var(--ink-faint);padding:0 20px 8px;
 }
 .rail a{
-  display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  display:flex;align-items:baseline;gap:8px;
   padding:5px 20px;text-decoration:none;color:var(--ink-soft);
   font-family:var(--serif);font-size:17px;letter-spacing:.01em;
   border-left:2px solid transparent;
 }
 .rail a:hover{color:var(--ink);background:var(--paper-2)}
-.rail a.active{color:var(--ink);border-left-color:var(--accent)}
-.rail a .n{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint)}
+.rail a.active{color:var(--ink);border-left-color:var(--set,var(--accent))}
+.rail a .dot{
+  width:7px;height:7px;border-radius:2px;flex:0 0 auto;align-self:center;
+  background:var(--set,var(--rule));
+}
+.rail a .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rail a .n{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);margin-left:auto}
 .rail hr{border:0;border-top:1px solid var(--rule-soft);margin:14px 20px}
 
 /* catalogue */
@@ -183,6 +189,19 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 .series.collapsed .chev{transform:rotate(-90deg)}
 .series.collapsed .plates,.series.collapsed .list{display:none}
 
+/* per-collection colour — derived from the set's artwork, muted to the palette.
+   Only shown once a colour has been derived (.has-set), so colourless
+   collections keep the plain ink rule. */
+.series{--set:var(--accent)}
+.set-swatch{
+  width:11px;height:11px;border-radius:2px;background:var(--set);
+  flex:0 0 auto;align-self:center;display:none;
+  box-shadow:0 0 0 1px rgba(27,26,24,.10);
+}
+[data-theme="dark"] .set-swatch{box-shadow:0 0 0 1px rgba(0,0,0,.4)}
+.series.has-set .set-swatch{display:inline-block}
+.series.has-set .series-head{border-bottom-color:var(--set)}
+
 /* plate grid */
 .plates{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
@@ -193,9 +212,15 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
   background:var(--paper);border:1px solid var(--rule);
   padding:14px 14px 12px;box-shadow:var(--shadow-soft);
   transition:box-shadow .18s, transform .18s, border-color .18s;
-  display:flex;flex-direction:column;
+  display:flex;flex-direction:column;position:relative;
+}
+/* collection spine — the plate's "set" label, only when a colour is derived */
+.has-set .mount::before{
+  content:"";position:absolute;left:-1px;right:-1px;top:-1px;height:2px;
+  background:var(--set);opacity:.9;
 }
 .plate:hover .mount{box-shadow:var(--shadow);transform:translateY(-2px);border-color:var(--ink-faint)}
+.has-set .plate:hover .mount{border-color:var(--set)}
 .frame{
   background:var(--paper-2);border:1px solid var(--rule-soft);
   aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
@@ -408,6 +433,17 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
   <!-- Masthead -->
   <div class="masthead">
     <div class="wordmark">
+      <svg class="mark" viewBox="0 0 34 24" aria-label="Signal9 Studio">
+        <rect x="0"  y="14" width="2" height="10"/>
+        <rect x="4"  y="9"  width="2" height="15"/>
+        <rect x="8"  y="4"  width="2" height="20"/>
+        <rect x="12" y="0"  width="2" height="24"/>
+        <rect x="16" y="6"  width="2" height="18"/>
+        <rect x="20" y="11" width="2" height="13"/>
+        <rect x="24" y="2"  width="2" height="22"/>
+        <rect x="28" y="8"  width="2" height="16"/>
+        <rect x="32" y="13" width="2" height="11"/>
+      </svg>
       <h1>Raisonné</h1>
       <span class="sub">Signal9 Studio · Register of Editions</span>
     </div>
@@ -603,6 +639,83 @@ async function hydrateUrl(id){
 }
 
 /* ============================================================
+   Collection colour — sample each set's artwork for a dominant
+   hue, muted into the archival palette. Cached per series by a
+   signature of its works, so it only recomputes when the set
+   (or an image within it) actually changes.
+   ============================================================ */
+const setColors=new Map();     // series -> {sig, color|null}
+function loadImageURL(url){
+  return new Promise((res,rej)=>{const img=new Image();img.onload=()=>res(img);img.onerror=rej;img.src=url;});
+}
+function rgbToHsl(r,g,b){
+  r/=255;g/=255;b/=255;
+  const mx=Math.max(r,g,b),mn=Math.min(r,g,b);let h=0,s=0,l=(mx+mn)/2;
+  if(mx!==mn){const d=mx-mn;s=l>0.5?d/(2-mx-mn):d/(mx+mn);
+    if(mx===r)h=(g-b)/d+(g<b?6:0);else if(mx===g)h=(b-r)/d+2;else h=(r-g)/d+4;h/=6;}
+  return[h,s,l];
+}
+function hslToHex(h,s,l){
+  const f=n=>{const k=(n+h*12)%12,a=s*Math.min(l,1-l);
+    return Math.round(255*(l-a*Math.max(-1,Math.min(k-3,9-k,1))));};
+  return"#"+[f(0),f(8),f(4)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+async function sampleAvg(url){
+  try{
+    const img=await loadImageURL(url);
+    const c=document.createElement("canvas");c.width=c.height=22;
+    c.getContext("2d").drawImage(img,0,0,22,22);
+    const d=c.getContext("2d").getImageData(0,0,22,22).data;
+    let r=0,g=0,b=0,wsum=0;
+    for(let i=0;i<d.length;i+=4){
+      if(d[i+3]<8) continue;
+      const R=d[i],G=d[i+1],B=d[i+2];
+      const w=0.25+rgbToHsl(R,G,B)[1];   // weight toward the chromatic pixels
+      r+=R*w;g+=G*w;b+=B*w;wsum+=w;
+    }
+    return wsum?[r/wsum,g/wsum,b/wsum]:null;
+  }catch(e){return null;}
+}
+async function deriveSetColor(series,list){
+  const sig=list.map(w=>w.id+":"+(w.updated||w.created||0)).join("|");
+  const cached=setColors.get(series);
+  if(cached && cached.sig===sig) return cached.color;
+  let R=0,G=0,B=0,n=0;
+  for(const w of list){
+    if(n>=8) break;                       // enough to characterise the set
+    const u=await hydrateUrl(w.id);
+    if(!u) continue;
+    const avg=await sampleAvg(u);
+    if(!avg) continue;
+    R+=avg[0];G+=avg[1];B+=avg[2];n++;
+  }
+  let color=null;
+  if(n){
+    let[h,s,l]=rgbToHsl(R/n,G/n,B/n);
+    s=Math.min(0.42,Math.max(0.24,s));    // muted but present
+    l=Math.min(0.56,Math.max(0.40,l));    // mid-tone — reads on light board & dark ground
+    color=hslToHex(h,s,l);
+  }
+  setColors.set(series,{sig,color});
+  return color;
+}
+function applySetColors(keys,map,railList){
+  keys.forEach(k=>{
+    if(k==="Unassigned") return;          // the catch-all stays neutral
+    deriveSetColor(k,map.get(k)).then(color=>{
+      const sec=document.getElementById("s-"+slug(k));
+      if(sec){
+        if(color){sec.style.setProperty("--set",color);sec.classList.add("has-set");}
+        else sec.classList.remove("has-set");
+      }
+      if(color) railList.querySelectorAll("a").forEach(a=>{
+        if(a.dataset.series===k) a.style.setProperty("--set",color);
+      });
+    });
+  });
+}
+
+/* ============================================================
    Helpers
    ============================================================ */
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
@@ -669,7 +782,7 @@ function render(){
   // rail
   const railList=$("railList");
   railList.innerHTML = keys.length
-    ? keys.map(k=>`<a href="#s-${slug(k)}" data-series="${esc(k)}">${esc(k)}<span class="n">${map.get(k).length}</span></a>`).join("")
+    ? keys.map(k=>`<a href="#s-${slug(k)}" data-series="${esc(k)}"><span class="dot"></span><span class="name">${esc(k)}</span><span class="n">${map.get(k).length}</span></a>`).join("")
     : `<a style="color:var(--ink-faint);pointer-events:none">—</a>`;
 
   // theme filter options
@@ -697,6 +810,7 @@ function render(){
     const isColl=collapsed.has(k);
     html+=`<section class="series ${isColl?"collapsed":""}" id="s-${slug(k)}" data-series="${esc(k)}">
       <div class="series-head" data-toggle="${esc(k)}">
+        <span class="set-swatch" aria-hidden="true"></span>
         <h2>${esc(k)}</h2>
         <span class="meta">${list.length} plate${list.length!==1?"s":""}</span>
         <span class="chev"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
@@ -722,6 +836,9 @@ function render(){
       el.classList.remove("empty");el.innerHTML="";el.appendChild(im);
     });
   }));
+
+  // derive & apply each collection's colour from its artwork
+  applySetColors(keys,map,railList);
 }
 
 function plateHTML(w){

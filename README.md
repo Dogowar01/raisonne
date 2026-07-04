@@ -38,6 +38,16 @@ profile, never uploaded. Because that store *can* be cleared (clearing site data
 timestamped JSON containing all metadata **and** the preview images. **Restore** merges it back
 in. Back up before anything risky.
 
+## Visual identity
+
+- **Signal9 mark:** a nine-bar "signal" logomark (verdigris) sits in the masthead beside the
+  Raisonné wordmark, tying the register to the studio.
+- **Per-collection colour:** each series takes a colour *derived from its own artwork* — the plate
+  previews are sampled for a dominant hue, muted into the archival palette, and applied as that
+  collection's accent (header swatch + rule, index-rail dot and active marker, and a thin spine
+  along the top of every plate in the set). Collections with no images stay neutral. The colour
+  is cached per collection and recomputed only when the set or one of its images changes.
+
 ## The "treatment" applied to the reference build
 
 - **PWA polish + offline:** added the manifest, an SVG app icon, apple/standalone meta tags,

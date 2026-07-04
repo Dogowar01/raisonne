@@ -6,7 +6,7 @@
    Bump CACHE to invalidate everything on the next visit.
    ============================================================ */
 "use strict";
-const CACHE = "raisonne-v1";
+const CACHE = "raisonne-v2";
 const SHELL = ["./", "./raisonne.html", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", e => {
