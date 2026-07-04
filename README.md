@@ -71,11 +71,12 @@ Tuned to the **Signal9 Studio aesthetic**: beauty-in-darkness, warm and atmosphe
   Spectral for prose; JetBrains Mono for all ledger data.
 - **Signal9 mark:** a nine-bar "signal" logomark (brass, softly glowing) sits in the masthead
   beside the Raisonné wordmark, tying the register to the studio.
-- **Per-collection colour:** each series takes a colour *derived from its own artwork* — the plate
-  previews are sampled for a dominant hue, muted into the archival palette, and applied as that
-  collection's accent (header swatch + rule, index-rail dot and active marker, and a thin spine
-  along the top of every plate in the set). Collections with no images stay neutral. The colour
-  is cached per collection and recomputed only when the set or one of its images changes.
+- **Per-image palette:** every card reflects the colours of *its own artwork*. Each preview is
+  sampled for up to four dominant tones (muted into the theme) and shown as a full-width **colour
+  strip** across the top of the plate, with the card's mount, image matte and border **washed in
+  the image's dominant tone**. Each collection header shows its **combined palette**; the index-rail
+  dot uses the set's dominant. Palettes are cached per work and recomputed only when its image
+  changes.
 
 ## The "treatment" applied to the reference build
 
