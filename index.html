@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#e8e7e1">
+<meta name="theme-color" content="#e7ddcd">
 <meta name="description" content="A registrar's ledger for Signal9 Studio fine-art print editions — offline, private, single-file.">
 <title>Raisonné — Signal9 Studio</title>
 <!-- Installable PWA: manifest + icons. Harmless on file:// (relative refs just no-op). -->
@@ -16,58 +16,77 @@
 <meta name="application-name" content="Raisonné">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
    RAISONNÉ — a registrar's ledger for Signal9 editions
-   Palette: archival board + iron ink + copper-plate verdigris.
-   Type: Cormorant (plates), Spectral (prose), JetBrains (data).
+   Signal9 aesthetic: warm charcoal & aged paper, atmospheric depth,
+   film grain, verdigris + brass + oxblood. Beauty in darkness.
+   Type: Playfair Display (plates), Spectral (prose), JetBrains (data).
    ============================================================ */
 :root{
-  --board:#e8e7e1;      /* mat board / gallery wall */
-  --paper:#f3f2ed;      /* print paper — cards lift off the board */
-  --paper-2:#ecebe4;
-  --ink:#1b1a18;        /* iron-gall text */
-  --ink-soft:#6b6a63;   /* secondary / metadata */
-  --ink-faint:#9a988f;
-  --rule:#cecdc4;       /* hairlines */
-  --rule-soft:#deded6;
-  --accent:#46595b;     /* copper-plate verdigris */
-  --accent-lift:#39494b;
-  --stamp:#7a3b34;      /* oxblood — sold out / retired only */
-  --field:#fbfbf8;
-  --shadow:0 1px 2px rgba(27,26,24,.05), 0 8px 24px rgba(27,26,24,.06);
-  --shadow-soft:0 1px 2px rgba(27,26,24,.05);
-  --serif:"Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --board:#e7ddcd;      /* aged paper ground */
+  --paper:#f3ecdd;      /* warm ivory — cards lift off the board */
+  --paper-2:#ece2d1;
+  --ink:#2a231b;        /* warm charcoal-brown */
+  --ink-soft:#6f6153;   /* secondary / metadata */
+  --ink-faint:#9d8f79;
+  --rule:#d4c8b3;       /* warm hairlines */
+  --rule-soft:#e3d9c7;
+  --accent:#3f5b56;     /* deepened copper-plate verdigris */
+  --accent-lift:#334b47;
+  --brass:#b0803a;      /* warm brass / amber — highlights, the mark */
+  --stamp:#8a3d30;      /* oxblood — sold out / retired only */
+  --field:#faf4e8;
+  --glow-1:rgba(176,128,58,.07);   /* brass atmosphere */
+  --glow-2:rgba(63,91,86,.05);     /* verdigris atmosphere */
+  --vignette:rgba(42,35,27,.05);
+  --shadow:0 1px 2px rgba(42,35,27,.06), 0 10px 28px rgba(42,35,27,.10);
+  --shadow-soft:0 1px 2px rgba(42,35,27,.06);
+  --grain:none;
+  --serif:"Playfair Display", Georgia, "Times New Roman", serif;
   --prose:"Spectral", Georgia, serif;
   --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 [data-theme="dark"]{
-  --board:#16161a;
-  --paper:#202025;
-  --paper-2:#1a1a1e;
-  --ink:#e7e6e0;
-  --ink-soft:#9d9c94;
-  --ink-faint:#66655e;
-  --rule:#33333a;
-  --rule-soft:#2a2a30;
-  --accent:#82a3a5;
-  --accent-lift:#9bbcbe;
-  --stamp:#c07a70;
-  --field:#191920;
-  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
-  --shadow-soft:0 1px 2px rgba(0,0,0,.3);
+  --board:#161210;      /* warm charcoal (not cool black) */
+  --paper:#221b15;      /* warm dark card */
+  --paper-2:#1b1510;
+  --ink:#ece2d2;        /* warm off-white */
+  --ink-soft:#a99a84;
+  --ink-faint:#6f6252;
+  --rule:#392f24;
+  --rule-soft:#2a2118;
+  --accent:#8fb2ad;     /* verdigris lifts */
+  --accent-lift:#a8c7c2;
+  --brass:#d3a24e;      /* molten amber */
+  --stamp:#cd8073;      /* warm oxblood */
+  --field:#1a140f;
+  --glow-1:rgba(211,162,78,.11);   /* ember glow */
+  --glow-2:rgba(143,178,173,.06);
+  --vignette:rgba(0,0,0,.46);
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 34px rgba(0,0,0,.5);
+  --shadow-soft:0 1px 2px rgba(0,0,0,.4);
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
 body{
-  background:var(--board);
+  background:
+    radial-gradient(140% 120% at 50% 34%, transparent 60%, var(--vignette) 100%),
+    radial-gradient(1100px 760px at 12% -8%, var(--glow-1), transparent 60%),
+    radial-gradient(1000px 720px at 100% 112%, var(--glow-2), transparent 55%),
+    var(--board);
   color:var(--ink);
   font-family:var(--prose);
   font-size:15px;
   line-height:1.5;
   -webkit-font-smoothing:antialiased;
   overflow:hidden;
+}
+/* film grain — small runtime-generated tile, perf-safe (no blend-mode/fixed-bg) */
+body::after{
+  content:"";position:fixed;inset:0;z-index:90;pointer-events:none;
+  background-image:var(--grain);background-size:64px 64px;opacity:.5;
 }
 button{font-family:inherit;cursor:pointer;color:inherit}
 input,select,textarea{font-family:inherit;color:var(--ink)}
@@ -79,15 +98,17 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 /* ---------- Masthead ---------- */
 .masthead{
   display:flex;align-items:baseline;gap:20px;
-  padding:14px 26px 12px;
+  padding:15px 26px 13px;
   border-bottom:1px solid var(--rule);
-  background:var(--board);
+  background:linear-gradient(180deg, var(--paper-2), var(--board));
   flex-wrap:wrap;
 }
-.wordmark{display:flex;align-items:baseline;gap:12px;margin-right:auto}
-.mark{width:26px;height:18px;flex:0 0 auto;align-self:center;fill:var(--accent)}
+.wordmark{display:flex;align-items:baseline;gap:13px;margin-right:auto}
+.mark{width:27px;height:19px;flex:0 0 auto;align-self:center;fill:var(--brass);
+  filter:drop-shadow(0 0 5px rgba(176,128,58,.28))}
+[data-theme="dark"] .mark{filter:drop-shadow(0 0 7px rgba(211,162,78,.4))}
 .wordmark h1{
-  font-family:var(--serif);font-weight:500;font-size:30px;letter-spacing:.02em;
+  font-family:var(--serif);font-weight:500;font-style:italic;font-size:33px;letter-spacing:0;
   margin:0;line-height:1;
 }
 .wordmark .sub{
@@ -149,7 +170,8 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 /* index rail */
 .rail{
   width:212px;flex:0 0 212px;border-right:1px solid var(--rule);
-  background:var(--board);overflow-y:auto;padding:16px 0 40px;
+  background:linear-gradient(180deg, var(--paper-2) 0%, var(--board) 42%);
+  overflow-y:auto;padding:16px 0 40px;
 }
 .rail-h{
   font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
@@ -1236,29 +1258,32 @@ function catalogueHTML(body){
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Signal9 Studio — Catalogue of Editions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Spectral:wght@300;400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Spectral:wght@300;400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
-:root{--board:#e8e7e1;--paper:#f3f2ed;--ink:#1b1a18;--soft:#6b6a63;--faint:#9a988f;--rule:#cecdc4;--accent:#46595b;--stamp:#7a3b34}
-*{box-sizing:border-box}body{margin:0;background:var(--board);color:var(--ink);font-family:"Spectral",Georgia,serif}
-header{padding:60px 40px 28px;text-align:center;border-bottom:1px solid var(--ink)}
-.mk{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft)}
-header h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:52px;margin:10px 0 6px;letter-spacing:.02em}
+:root{--board:#e7ddcd;--paper:#f3ecdd;--ink:#2a231b;--soft:#6f6153;--faint:#9d8f79;--rule:#d4c8b3;--accent:#3f5b56;--brass:#b0803a;--stamp:#8a3d30}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font-family:"Spectral",Georgia,serif;
+  background:radial-gradient(1100px 700px at 15% -8%,rgba(176,128,58,.08),transparent 60%),
+             radial-gradient(900px 600px at 100% 110%,rgba(63,91,86,.05),transparent 55%),var(--board)}
+header{padding:66px 40px 30px;text-align:center;border-bottom:1px solid var(--ink)}
+.mk{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--soft)}
+header h1{font-family:"Playfair Display",Georgia,serif;font-weight:500;font-style:italic;font-size:56px;margin:10px 0 6px;letter-spacing:0}
 main{max-width:1120px;margin:0 auto;padding:10px 40px 80px}
-.col{margin-top:46px}
-.col h2{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:31px;border-bottom:1px solid var(--ink);padding-bottom:8px;margin:0}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:36px 28px;margin-top:26px}
+.col{margin-top:48px}
+.col h2{font-family:"Playfair Display",Georgia,serif;font-weight:500;font-size:32px;border-bottom:1px solid var(--ink);padding-bottom:8px;margin:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:38px 28px;margin-top:26px}
 figure{margin:0;break-inside:avoid}
-.fr{background:var(--paper);border:1px solid var(--rule);padding:16px;display:flex;align-items:center;justify-content:center;aspect-ratio:1/1;overflow:hidden}
+.fr{background:var(--paper);border:1px solid var(--rule);padding:16px;display:flex;align-items:center;justify-content:center;aspect-ratio:1/1;overflow:hidden;box-shadow:0 10px 26px rgba(42,35,27,.08)}
 .fr img{max-width:100%;max-height:100%;object-fit:contain}
-figcaption{padding-top:12px}
-.ttl{font-family:"Cormorant Garamond",Georgia,serif;font-size:23px;line-height:1.15}
-.ttl .yr{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;color:var(--faint)}
+figcaption{padding-top:13px}
+.ttl{font-family:"Playfair Display",Georgia,serif;font-size:23px;line-height:1.15}
+.ttl .yr{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;color:var(--faint);font-style:normal}
 .mt{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;color:var(--soft);margin-top:4px;letter-spacing:.02em}
-.ds{font-size:14px;line-height:1.55;color:#33322e;margin:8px 0 7px}
+.ds{font-size:14px;line-height:1.55;color:#403829;margin:8px 0 7px}
 .av{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.05em;color:var(--accent)}
 .av.out{color:var(--stamp)}
 footer{text-align:center;padding:34px;letter-spacing:.1em}
-@media print{body{background:#fff}.fr{border-color:#ddd}}
+@media print{body{background:#fff}.fr{border-color:#ddd;box-shadow:none}}
 </style></head><body>
 <header><div class="mk">Signal9 Studio</div><h1>Catalogue of Editions</h1>
 <div class="mk">${new Date().toLocaleDateString("en-AU",{year:"numeric",month:"long"})}</div></header>
@@ -1323,7 +1348,7 @@ async function move(id,dir){
 async function setTheme(t){
   document.documentElement.setAttribute("data-theme",t);
   $("btnTheme").textContent = t==="dark" ? "☀" : "☾";
-  document.querySelector('meta[name=theme-color]').setAttribute("content", t==="dark"?"#16161a":"#e8e7e1");
+  document.querySelector('meta[name=theme-color]').setAttribute("content", t==="dark"?"#161210":"#e7ddcd");
   await put("meta",{key:"theme",val:t});
 }
 
@@ -1459,8 +1484,18 @@ function hasFiles(e){return e.dataTransfer&&[...(e.dataTransfer.types||[])].incl
 /* ============================================================
    Boot
    ============================================================ */
+/* Film grain — generate a small monochrome noise tile once and expose it
+   as --grain. Runtime canvas (not feTurbulence) keeps it perf-safe. */
+function installGrain(){
+  const s=64, c=document.createElement("canvas"); c.width=c.height=s;
+  const ctx=c.getContext("2d"), img=ctx.createImageData(s,s), d=img.data;
+  for(let i=0;i<d.length;i+=4){ const v=200+Math.random()*55|0; d[i]=d[i+1]=d[i+2]=v; d[i+3]=Math.random()*26|0; }
+  ctx.putImageData(img,0,0);
+  document.documentElement.style.setProperty("--grain",`url(${c.toDataURL()})`);
+}
 async function boot(){
   wire();
+  installGrain();
   const t=await get("meta","theme");
   await setTheme(t&&t.val?t.val:"light");
   // restore registrar state

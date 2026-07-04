@@ -61,8 +61,16 @@ in. Back up before anything risky.
 
 ## Visual identity
 
-- **Signal9 mark:** a nine-bar "signal" logomark (verdigris) sits in the masthead beside the
-  Raisonné wordmark, tying the register to the studio.
+Tuned to the **Signal9 Studio aesthetic**: beauty-in-darkness, warm and atmospheric, never flat.
+
+- **Palette:** aged-paper warmth in light, **warm charcoal** in dark (not cool black), with
+  atmospheric radial glows, a soft vignette, and a runtime-generated **film-grain** overlay so
+  surfaces feel like canvas rather than flat fills. Verdigris + oxblood, plus a **brass/amber**
+  accent for highlights.
+- **Type:** italic **Playfair Display** for the wordmark, section headers and plate titles;
+  Spectral for prose; JetBrains Mono for all ledger data.
+- **Signal9 mark:** a nine-bar "signal" logomark (brass, softly glowing) sits in the masthead
+  beside the Raisonné wordmark, tying the register to the studio.
 - **Per-collection colour:** each series takes a colour *derived from its own artwork* — the plate
   previews are sampled for a dominant hue, muted into the archival palette, and applied as that
   collection's accent (header swatch + rule, index-rail dot and active marker, and a thin spine
