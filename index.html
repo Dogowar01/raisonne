@@ -475,6 +475,7 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
     <button class="tbtn" id="btnExport" title="Back up everything"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Back up</button>
     <button class="tbtn" id="btnImport" title="Restore from a backup"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 8l5-5 5 5"/><path d="M12 3v12"/></svg>Restore</button>
     <button class="tbtn" id="btnTheme" title="Studio light">☾</button>
+    <button class="tbtn" id="btnInstall" title="Install as an app" hidden><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>Install</button>
     <button class="tbtn primary" id="btnAdd"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add work</button>
   </div>
 
@@ -1103,6 +1104,12 @@ function wire(){
   $("btnImport").onclick=()=>$("restoreInput").click();
   $("restoreInput").onchange=e=>{if(e.target.files[0])importBackup(e.target.files[0]);e.target.value="";};
   $("btnPrint").onclick=()=>window.print();
+  $("btnInstall").onclick=async()=>{
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt=null; $("btnInstall").hidden=true;
+  };
   $("btnTheme").onclick=()=>setTheme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark");
   $("viewGrid").onclick=()=>{view="grid";$("viewGrid").classList.add("on");$("viewList").classList.remove("on");render();};
   $("viewList").onclick=()=>{view="list";$("viewList").classList.add("on");$("viewGrid").classList.remove("on");render();};
@@ -1189,12 +1196,29 @@ async function boot(){
   works=await all("works");
   render();
 }
+/* Installability — surface an in-app Install button when the browser
+   offers one, so you can install straight from the loaded page. */
+let deferredPrompt=null;
+window.addEventListener("beforeinstallprompt",e=>{
+  e.preventDefault(); deferredPrompt=e;
+  const b=$("btnInstall"); if(b) b.hidden=false;
+});
+window.addEventListener("appinstalled",()=>{
+  deferredPrompt=null; const b=$("btnInstall"); if(b) b.hidden=true; toast("Installed as an app");
+});
+
 boot();
 
-/* Register the service worker for true offline caching (app shell + fonts).
-   Only meaningful when served over http(s) — on file:// it silently no-ops,
-   so the app behaves identically in both delivery modes. */
+/* Register the service worker (app shell + fonts caching for offline use).
+   Only meaningful over http(s) — on file:// it silently no-ops, so the app
+   behaves identically in both delivery modes. HTML is served network-first
+   (see sw.js), so a new version is picked up as soon as you're online. */
 if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  // When a new worker takes control, reload once so the fresh app is shown.
+  let refreshing=false;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{
+    if(refreshing) return; refreshing=true; location.reload();
+  });
   window.addEventListener("load",()=>{
     navigator.serviceWorker.register("sw.js").catch(()=>{/* offline caching unavailable — app still works */});
   });

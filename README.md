@@ -7,28 +7,30 @@ offline-first, no backend. See [`raisonne-brief.md`](raisonne-brief.md) for the 
 
 | File | Role |
 |---|---|
-| `raisonne.html` | The whole app — HTML, CSS, JS inline. Open it and it works. |
+| `index.html` | The whole app — HTML, CSS, JS inline. Open it and it works. |
 | `manifest.webmanifest` | Web app manifest, so it installs as a desktop/standalone app. |
-| `sw.js` | Service worker — caches the app shell + Google Fonts for true offline use. |
+| `sw.js` | Service worker — network-first HTML + cached shell/fonts for offline use. |
 | `icon.svg` | App / favicon (verdigris monogram). |
 | `raisonne-brief.md` | The build brief / design spec. |
 
 ## Running it
 
-**As a local file** — double-click `raisonne.html`. Works fully offline; the service worker
+**As a local file** — double-click `index.html`. Works fully offline; the service worker
 simply doesn't activate on `file://`, and the app runs identically without it (fonts fall back
 to system serif/mono when offline).
 
-**As an installed app (recommended)** — serve the folder over http(s), open `raisonne.html`,
-then use Chrome/Edge **⋮ → Install this site as an app**. It runs in its own window with a
-desktop icon. Any static host works, e.g. from this folder:
+**As an installed app (recommended)** — serve the folder over http(s), open it, then click the
+**Install** button that appears in the toolbar (or use Chrome/Edge **⋮ → Install this site as an
+app**). It runs in its own window with a desktop icon. Any static host works, e.g. from this
+folder:
 
 ```
-python -m http.server 4173      # then open http://localhost:4173/raisonne.html
+python -m http.server 4173      # then open http://localhost:4173/
 ```
 
-Once loaded over http(s) once, the service worker caches everything (including fonts), so it
-opens offline thereafter. Bump the `CACHE` constant in `sw.js` to force a refresh after edits.
+The HTML is served **network-first**, so once you're online you always get the latest version;
+offline, it falls back to the cached copy. Fonts and the app shell are cached for offline use.
+After editing the app, bump the `CACHE` constant in `sw.js` so old caches are retired cleanly.
 
 ## Your data & backups
 

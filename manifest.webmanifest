@@ -2,7 +2,7 @@
   "name": "Raisonné — Signal9 Studio",
   "short_name": "Raisonné",
   "description": "A registrar's ledger for Signal9 Studio fine-art print editions.",
-  "start_url": "raisonne.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
