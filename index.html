@@ -211,17 +211,14 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 .series.collapsed .chev{transform:rotate(-90deg)}
 .series.collapsed .plates,.series.collapsed .list{display:none}
 
-/* per-collection colour — derived from the set's artwork, muted to the palette.
-   Only shown once a colour has been derived (.has-set), so colourless
-   collections keep the plain ink rule. */
+/* per-image palette — each card and set reflects the colours sampled from
+   its artwork, muted into the theme. The set header shows the collection's
+   combined palette; each plate shows its own. */
 .series{--set:var(--accent)}
-.set-swatch{
-  width:11px;height:11px;border-radius:2px;background:var(--set);
-  flex:0 0 auto;align-self:center;display:none;
-  box-shadow:0 0 0 1px rgba(27,26,24,.10);
-}
-[data-theme="dark"] .set-swatch{box-shadow:0 0 0 1px rgba(0,0,0,.4)}
-.series.has-set .set-swatch{display:inline-block}
+.set-pal{display:none;gap:3px;flex:0 0 auto;align-self:center}
+.series.has-set .set-pal{display:inline-flex}
+.set-pal i{width:12px;height:12px;border-radius:2px;box-shadow:0 0 0 1px rgba(27,26,24,.12)}
+[data-theme="dark"] .set-pal i{box-shadow:0 0 0 1px rgba(0,0,0,.45)}
 .series.has-set .series-head{border-bottom-color:var(--set)}
 
 /* plate grid */
@@ -236,18 +233,27 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
   transition:box-shadow .18s, transform .18s, border-color .18s;
   display:flex;flex-direction:column;position:relative;
 }
-/* collection spine — the plate's "set" label, only when a colour is derived */
-.has-set .mount::before{
-  content:"";position:absolute;left:-1px;right:-1px;top:-1px;height:2px;
-  background:var(--set);opacity:.9;
+/* colour strip pulled from the image, sits along the top of each plate */
+.palette{display:none;height:7px;margin:-14px -14px 13px;overflow:hidden}
+.palette i{flex:1}
+.has-pal .palette{display:flex}
+/* mount, matte and border take on the image's dominant tone */
+.has-pal .mount{
+  background:color-mix(in srgb, var(--dom) 9%, var(--paper));
+  border-color:color-mix(in srgb, var(--dom) 34%, var(--rule));
 }
 .plate:hover .mount{box-shadow:var(--shadow);transform:translateY(-2px);border-color:var(--ink-faint)}
-.has-set .plate:hover .mount{border-color:var(--set)}
+.plate.has-pal:hover .mount{border-color:var(--dom)}
 .frame{
   background:var(--paper-2);border:1px solid var(--rule-soft);
   aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
   overflow:hidden;position:relative;
 }
+.has-pal .frame{
+  background:color-mix(in srgb, var(--dom) 14%, var(--paper-2));
+  border-color:color-mix(in srgb, var(--dom) 24%, var(--rule-soft));
+}
+.lrow.has-pal{box-shadow:inset 3px 0 0 var(--dom)}
 .frame img{max-width:100%;max-height:100%;object-fit:contain;display:block}
 .frame.empty{color:var(--ink-faint);font-family:var(--mono);font-size:10px;letter-spacing:.1em}
 .plate-caption{padding-top:11px}
@@ -706,12 +712,12 @@ async function hydrateUrl(id){
 }
 
 /* ============================================================
-   Collection colour — sample each set's artwork for a dominant
-   hue, muted into the archival palette. Cached per series by a
-   signature of its works, so it only recomputes when the set
-   (or an image within it) actually changes.
+   Per-image palette — sample each work's artwork for a small set
+   of dominant colours, muted into the theme. Each card shows its
+   own palette (strip + tinted mount/matte); each collection shows
+   its combined palette in the header. Cached per work by signature.
    ============================================================ */
-const setColors=new Map();     // series -> {sig, color|null}
+const wPalette=new Map();       // id -> {sig, cols:[hex]|null}
 function loadImageURL(url){
   return new Promise((res,rej)=>{const img=new Image();img.onload=()=>res(img);img.onerror=rej;img.src=url;});
 }
@@ -727,59 +733,74 @@ function hslToHex(h,s,l){
     return Math.round(255*(l-a*Math.max(-1,Math.min(k-3,9-k,1))));};
   return"#"+[f(0),f(8),f(4)].map(x=>x.toString(16).padStart(2,"0")).join("");
 }
-async function sampleAvg(url){
+function hexToRgb(h){h=h.replace("#","");return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+function colorClose(a,b){const x=hexToRgb(a),y=hexToRgb(b);return Math.abs(x[0]-y[0])+Math.abs(x[1]-y[1])+Math.abs(x[2]-y[2])<52;}
+async function extractPalette(url){
   try{
     const img=await loadImageURL(url);
-    const c=document.createElement("canvas");c.width=c.height=22;
-    c.getContext("2d").drawImage(img,0,0,22,22);
-    const d=c.getContext("2d").getImageData(0,0,22,22).data;
-    let r=0,g=0,b=0,wsum=0;
+    const n=44,c=document.createElement("canvas");c.width=c.height=n;
+    const ctx=c.getContext("2d");ctx.drawImage(img,0,0,n,n);
+    const d=ctx.getImageData(0,0,n,n).data, buckets=new Map();
     for(let i=0;i<d.length;i+=4){
-      if(d[i+3]<8) continue;
+      if(d[i+3]<24) continue;
       const R=d[i],G=d[i+1],B=d[i+2];
-      const w=0.25+rgbToHsl(R,G,B)[1];   // weight toward the chromatic pixels
-      r+=R*w;g+=G*w;b+=B*w;wsum+=w;
+      const key=((R>>5)<<6)|((G>>5)<<3)|(B>>5);   // coarse 3 bits/channel
+      let e=buckets.get(key); if(!e){e={r:0,g:0,b:0,n:0};buckets.set(key,e);}
+      e.r+=R;e.g+=G;e.b+=B;e.n++;
     }
-    return wsum?[r/wsum,g/wsum,b/wsum]:null;
-  }catch(e){return null;}
+    const arr=[...buckets.values()].map(e=>({r:e.r/e.n,g:e.g/e.n,b:e.b/e.n,n:e.n})).sort((a,b)=>b.n-a.n);
+    const chosen=[];
+    for(const a of arr){
+      if(chosen.length>=4) break;
+      const [h,s,l]=rgbToHsl(a.r,a.g,a.b);
+      if((l>0.93||l<0.05) && chosen.length) continue;                            // skip near-white/black once we have colour
+      if(chosen.some(c2=>Math.abs(c2.h-h)<0.055 && Math.abs(c2.l-l)<0.13)) continue; // dedupe similar
+      chosen.push({h,s,l});
+    }
+    if(!chosen.length) return null;
+    return chosen.map(({h,s,l})=>hslToHex(h, Math.min(0.52,Math.max(0.20,s)), Math.min(0.64,Math.max(0.32,l))));
+  }catch(e){ return null; }
 }
-async function deriveSetColor(series,list){
-  const sig=list.map(w=>w.id+":"+(w.updated||w.created||0)).join("|");
-  const cached=setColors.get(series);
-  if(cached && cached.sig===sig) return cached.color;
-  let R=0,G=0,B=0,n=0;
-  for(const w of list){
-    if(n>=8) break;                       // enough to characterise the set
-    const u=await hydrateUrl(w.id);
-    if(!u) continue;
-    const avg=await sampleAvg(u);
-    if(!avg) continue;
-    R+=avg[0];G+=avg[1];B+=avg[2];n++;
-  }
-  let color=null;
-  if(n){
-    let[h,s,l]=rgbToHsl(R/n,G/n,B/n);
-    s=Math.min(0.42,Math.max(0.24,s));    // muted but present
-    l=Math.min(0.56,Math.max(0.40,l));    // mid-tone — reads on light board & dark ground
-    color=hslToHex(h,s,l);
-  }
-  setColors.set(series,{sig,color});
-  return color;
+async function paletteFor(w){
+  const sig=w.id+":"+(w.updated||w.created||0);
+  const c=wPalette.get(w.id);
+  if(c && c.sig===sig) return c.cols;
+  const u=await hydrateUrl(w.id);
+  const cols=u?await extractPalette(u):null;
+  wPalette.set(w.id,{sig,cols});
+  return cols;
 }
-function applySetColors(keys,map,railList){
-  keys.forEach(k=>{
-    if(k==="Unassigned") return;          // the catch-all stays neutral
-    deriveSetColor(k,map.get(k)).then(color=>{
+async function applyPalettes(keys,map,railList){
+  for(const k of keys){
+    if(!map.has(k)) continue;
+    const doms=[];
+    for(const w of map.get(k)){
+      const cols=await paletteFor(w);
+      if(!cols||!cols.length) continue;
+      doms.push(cols[0]);
+      const strip=cols.map(c=>`<i style="background:${c}"></i>`).join("");
+      const plate=document.querySelector(`.plate[data-id="${w.id}"]`);
+      if(plate){
+        plate.style.setProperty("--dom",cols[0]);
+        plate.classList.add("has-pal");
+        const el=plate.querySelector(".palette"); if(el) el.innerHTML=strip;
+      }
+      const row=document.querySelector(`.lrow[data-id="${w.id}"]`);
+      if(row){ row.style.setProperty("--dom",cols[0]); row.classList.add("has-pal"); }
+    }
+    if(k!=="Unassigned" && doms.length){
+      const setCols=[]; for(const hx of doms){ if(!setCols.some(o=>colorClose(o,hx))) setCols.push(hx); }
+      const top=setCols.slice(0,5);
       const sec=document.getElementById("s-"+slug(k));
       if(sec){
-        if(color){sec.style.setProperty("--set",color);sec.classList.add("has-set");}
-        else sec.classList.remove("has-set");
+        sec.classList.add("has-set");
+        sec.style.setProperty("--set",top[0]);
+        const pal=sec.querySelector(".set-pal");
+        if(pal) pal.innerHTML=top.map(c=>`<i style="background:${c}"></i>`).join("");
       }
-      if(color) railList.querySelectorAll("a").forEach(a=>{
-        if(a.dataset.series===k) a.style.setProperty("--set",color);
-      });
-    });
-  });
+      railList.querySelectorAll("a").forEach(a=>{ if(a.dataset.series===k) a.style.setProperty("--set",top[0]); });
+    }
+  }
 }
 
 /* ============================================================
@@ -877,7 +898,7 @@ function render(){
     const isColl=collapsed.has(k);
     html+=`<section class="series ${isColl?"collapsed":""}" id="s-${slug(k)}" data-series="${esc(k)}">
       <div class="series-head" data-toggle="${esc(k)}">
-        <span class="set-swatch" aria-hidden="true"></span>
+        <span class="set-pal" aria-hidden="true"></span>
         <h2>${esc(k)}</h2>
         <span class="meta">${list.length} plate${list.length!==1?"s":""}</span>
         <span class="chev"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
@@ -904,8 +925,8 @@ function render(){
     });
   }));
 
-  // derive & apply each collection's colour from its artwork
-  applySetColors(keys,map,railList);
+  // sample each work's artwork and paint cards + sets with its palette
+  applyPalettes(keys,map,railList);
 }
 
 function plateHTML(w){
@@ -917,6 +938,7 @@ function plateHTML(w){
   const bits=[fmt,ed,sold].filter(Boolean);
   return `<div class="plate" data-id="${w.id}">
     <div class="mount">
+      <div class="palette" aria-hidden="true"></div>
       <div class="frame ${u?"":"empty"}" data-img="${w.id}">${u?`<img src="${u}" alt="${esc(w.title||"")}">`:"no image"}</div>
       ${closed?`<span class="stamp">${w.status==="Retired"?"Retired":"Sold out"}</span>`:""}
       <div class="plate-caption">
