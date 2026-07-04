@@ -369,6 +369,35 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 .meter i{display:block;height:100%;background:var(--accent)}
 .meter i.full{background:var(--stamp)}
 
+/* sales register — which numbers of the edition have sold */
+.ed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:5px;margin-top:12px}
+.ed-chip{
+  font-family:var(--mono);font-size:10px;letter-spacing:.02em;padding:5px 0;text-align:center;
+  border:1px solid var(--rule);border-radius:2px;background:var(--field);color:var(--ink-faint);cursor:pointer;
+}
+.ed-chip:hover{border-color:var(--ink-faint);color:var(--ink-soft)}
+.ed-chip.sold{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+[data-theme="dark"] .ed-chip.sold{color:var(--board)}
+.sales{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.sale-row{display:grid;grid-template-columns:32px 1fr 110px 66px 22px;gap:6px;align-items:center}
+.sale-row .sn{font-family:var(--mono);font-size:11px;color:var(--accent);text-align:center}
+.sale-row input{background:var(--field);border:1px solid var(--rule);border-radius:2px;padding:5px 7px;font-size:12px;outline:none;font-family:var(--prose)}
+.sale-row input.pr{font-family:var(--mono)}
+.sale-row input:focus{border-color:var(--accent)}
+.sale-row .rm{background:none;border:0;color:var(--ink-faint);cursor:pointer;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center}
+.sale-row .rm:hover{color:var(--stamp)}
+.sales-empty{font-family:var(--mono);font-size:10px;color:var(--ink-faint);letter-spacing:.03em;margin-top:8px}
+
+/* registrar mini-actions (open / link master file) */
+.file-actions{display:flex;gap:8px;align-items:center;margin-top:7px;flex-wrap:wrap}
+.minibtn{font-family:var(--mono);font-size:10px;letter-spacing:.03em;padding:4px 9px;border:1px solid var(--rule);border-radius:2px;background:var(--field);color:var(--ink-soft);cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.minibtn:hover{color:var(--ink);border-color:var(--ink-faint)}
+.minibtn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.7}
+
+/* "back up me" nudge dot on the Back up button */
+#btnExport{position:relative}
+#btnExport.nudge::after{content:"";position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:var(--stamp)}
+
 .drawer-foot{
   display:flex;gap:10px;align-items:center;padding:14px 20px;border-top:1px solid var(--rule);
 }
@@ -472,7 +501,9 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
       <button id="viewList" title="Ledger view"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
     </div>
     <button class="tbtn" id="btnPrint" title="Print catalogue"><svg viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print</button>
-    <button class="tbtn" id="btnExport" title="Back up everything"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Back up</button>
+    <button class="tbtn" id="btnCatalogue" title="Generate a collector catalogue (public HTML)"><svg viewBox="0 0 24 24"><path d="M4 4h9a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H4z"/><path d="M20 4h-4a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H20z"/></svg>Catalogue</button>
+    <button class="tbtn" id="btnExport" title="Back up everything (metadata + images)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Back up</button>
+    <button class="tbtn" id="btnCsv" title="Export the register as CSV"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/></svg>CSV</button>
     <button class="tbtn" id="btnImport" title="Restore from a backup"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 8l5-5 5 5"/><path d="M12 3v12"/></svg>Restore</button>
     <button class="tbtn" id="btnTheme" title="Studio light">☾</button>
     <button class="tbtn" id="btnInstall" title="Install as an app" hidden><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>Install</button>
@@ -546,7 +577,12 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
     <div class="meter" id="meter"><i id="meterFill"></i></div>
     <div class="hint" id="meterTxt"></div>
 
-    <div class="field" style="margin-top:16px">
+    <div class="divider-l" style="margin-top:20px">Sales register</div>
+    <div class="hint" id="salesHint">Tap a number to mark it sold, then record the buyer. Sold count follows this.</div>
+    <div class="ed-grid" id="edGrid"></div>
+    <div class="sales" id="salesList"></div>
+
+    <div class="field" style="margin-top:20px">
       <label>Status</label>
       <select id="fStatus">
         <option>Concept</option><option>Proofing</option><option>Editioned</option>
@@ -555,8 +591,16 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
     </div>
 
     <div class="divider-l">Registrar</div>
-    <div class="field"><label>Master file — where the real file lives</label><input id="fFile" placeholder="e.g. tamar_nocturne_03_master.tif"></div>
-    <div class="field"><label>Private notes</label><textarea id="fNotes" placeholder="Sold to whom, which numbers, market debut, proofing notes…"></textarea></div>
+    <div class="field">
+      <label>Master file — where the real file lives</label>
+      <input id="fFile" placeholder="e.g. tamar_nocturne_03_master.tif">
+      <div class="file-actions" id="fileActions">
+        <button type="button" class="minibtn" id="btnOpenMaster"><svg viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>Open master</button>
+        <button type="button" class="minibtn" id="btnLinkFolder"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Link masters folder…</button>
+        <span class="hint" id="masterHint"></span>
+      </div>
+    </div>
+    <div class="field"><label>Private notes</label><textarea id="fNotes" placeholder="Market debut, proofing notes, provenance… (per-number sales are tracked above)"></textarea></div>
   </div>
   <div class="drawer-foot">
     <button class="del" id="btnDelete"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6"/></svg>Remove</button>
@@ -913,7 +957,9 @@ function openDrawer(work){
   $("fStatus").value=editing.status||"Concept";
   $("fFile").value=editing.file||"";
   $("fNotes").value=editing.notes||"";
-  updateMeter();
+  editing.sales = Array.isArray(editing.sales) ? editing.sales.map(s=>({...s})) : [];
+  renderSales();
+  refreshMasterHint();
   // image
   const ci=$("cardImage");
   const setImg=u=>{
@@ -942,6 +988,35 @@ function updateMeter(){
   fill.classList.toggle("full",sold>=ed);
   txt.textContent=`${sold} of ${ed} sold · ${Math.max(0,ed-sold)} remaining`;
 }
+/* Sales register — edition-number grid + per-sale rows. Mutates
+   editing.sales live; sold count is derived from it. */
+function renderSales(){
+  if(!editing) return;
+  const ed=parseInt($("fEdition").value)||0;
+  editing.sales=editing.sales||[];
+  const soldNs=new Set(editing.sales.map(s=>s.n));
+  const grid=$("edGrid");
+  if(ed>0 && ed<=250){
+    let g="";
+    for(let i=1;i<=ed;i++) g+=`<button type="button" class="ed-chip ${soldNs.has(i)?"sold":""}" data-n="${i}">${String(i).padStart(2,"0")}</button>`;
+    grid.innerHTML=g; grid.style.display="grid";
+  } else { grid.innerHTML=""; grid.style.display="none"; }
+  const rows=[...editing.sales].sort((a,b)=>(a.n||0)-(b.n||0));
+  const list=$("salesList");
+  list.innerHTML = rows.length ? rows.map(s=>{
+    const idx=editing.sales.indexOf(s);
+    return `<div class="sale-row" data-idx="${idx}">
+      <span class="sn">${s.n?String(s.n).padStart(2,"0"):"AP"}</span>
+      <input class="bx" data-f="buyer" placeholder="Sold to…" value="${esc(s.buyer||"")}">
+      <input data-f="date" type="date" value="${esc(s.date||"")}">
+      <input class="pr" data-f="price" placeholder="$" value="${esc(s.price||"")}">
+      <button type="button" class="rm" title="Remove sale">×</button>
+    </div>`;
+  }).join("") : `<div class="sales-empty">No sales recorded yet.</div>`;
+  if(editing.sales.length){ $("fSold").value=editing.sales.length; $("fSold").readOnly=true; $("fSold").style.opacity=".6"; }
+  else { $("fSold").readOnly=false; $("fSold").style.opacity="1"; }
+  updateMeter();
+}
 function readDrawer(){
   const num=v=>v===""?null:Number(v);
   Object.assign(editing,{
@@ -962,6 +1037,9 @@ function readDrawer(){
     notes:$("fNotes").value.trim(),
     updated:Date.now(),
   });
+  // sold count follows the sales register when it's in use
+  editing.sales = Array.isArray(editing.sales) ? editing.sales : [];
+  if(editing.sales.length) editing.sold = editing.sales.length;
   if(editing.created==null) editing.created=Date.now();
 }
 async function saveWork(){
@@ -976,6 +1054,7 @@ async function saveWork(){
   await put("works",editing);
   const idx=works.findIndex(w=>w.id===editing.id);
   if(idx>=0) works[idx]=editing; else works.push(editing);
+  await bumpChanges();
   toast(idx>=0?"Work updated":"Work added to register");
   closeDrawer();
   render();
@@ -988,6 +1067,7 @@ async function removeWork(){
   await del("works",editing.id);await del("images",editing.id);
   if(urls.has(editing.id)){URL.revokeObjectURL(urls.get(editing.id));urls.delete(editing.id);}
   works=works.filter(w=>w.id!==editing.id);
+  await bumpChanges();
   toast("Work removed");closeDrawer();render();
 }
 
@@ -1024,18 +1104,41 @@ function nextQueued(){
 function blobToDataURL(blob){return new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(blob);});}
 async function dataURLToBlob(u){return (await fetch(u)).blob();}
 
-async function exportBackup(){
-  const out={app:"Raisonné",kind:"signal9-register",version:1,exportedAt:new Date().toISOString(),works:[]};
+async function buildBackupJSON(){
+  const out={app:"Raisonné",kind:"signal9-register",version:2,exportedAt:new Date().toISOString(),works:[]};
   for(const w of works){
     const rec=await get("images",w.id);
     const image=rec&&rec.blob?await blobToDataURL(rec.blob):null;
     out.works.push({...w,_image:image});
   }
-  const blob=new Blob([JSON.stringify(out,null,2)],{type:"application/json"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download=`raisonne-backup-${new Date().toISOString().slice(0,10)}.json`;
-  a.click();URL.revokeObjectURL(a.href);
+  return JSON.stringify(out,null,2);
+}
+let backupFileHandle=null;
+async function exportBackup(){
+  const json=await buildBackupJSON();
+  const name=`raisonne-backup-${new Date().toISOString().slice(0,10)}.json`;
+  // Prefer File System Access so repeat back-ups overwrite the same file silently.
+  if(window.showSaveFilePicker){
+    try{
+      if(backupFileHandle){
+        const p=await backupFileHandle.requestPermission({mode:"readwrite"});
+        if(p!=="granted") backupFileHandle=null;
+      }
+      if(!backupFileHandle){
+        backupFileHandle=await window.showSaveFilePicker({suggestedName:name,
+          types:[{description:"Raisonné backup",accept:{"application/json":[".json"]}}]});
+        await put("meta",{key:"backupFile",val:backupFileHandle});
+      }
+      const ws=await backupFileHandle.createWritable();
+      await ws.write(json); await ws.close();
+      await resetNudge();
+      toast(`Backed up ${works.length} works → ${backupFileHandle.name}`);
+      return;
+    }catch(e){ if(e&&e.name==="AbortError") return; /* fall through to plain download */ }
+  }
+  const blob=new Blob([json],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);
+  await resetNudge();
   toast(`Backed up ${works.length} works`);
 }
 async function importBackup(file){
@@ -1055,7 +1158,145 @@ async function importBackup(file){
   }
   // clear cached urls so they re-hydrate
   urls.forEach(u=>URL.revokeObjectURL(u));urls.clear();
+  await bumpChanges();
   toast(`Restored ${n} works`);render();
+}
+
+/* ---------- "Back up me" nudge (changes since last backup) ---------- */
+let pendingChanges=0;
+function updateNudge(){
+  const b=$("btnExport"); if(!b) return;
+  b.classList.toggle("nudge",pendingChanges>0);
+  b.title = pendingChanges>0
+    ? `Back up — ${pendingChanges} change${pendingChanges!==1?"s":""} since last backup`
+    : "Back up everything (metadata + images)";
+}
+async function bumpChanges(){ pendingChanges++; await put("meta",{key:"pendingChanges",val:pendingChanges}); updateNudge(); }
+async function resetNudge(){ pendingChanges=0; await put("meta",{key:"pendingChanges",val:0}); await put("meta",{key:"lastBackup",val:Date.now()}); updateNudge(); }
+
+/* ---------- CSV export (metadata only, spreadsheet / insurance) ---------- */
+function csvCell(v){ v=(v==null?"":String(v)); return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v; }
+function exportCSV(){
+  const cols=["order","title","series","theme","year","tier","format","medium","edition","sold","price","status","file"];
+  const head=["Order","Title","Series","Theme","Year","Tier","Format","Medium","Edition","Sold","Price (AUD)","Status","Master file","Sold numbers","Buyers","Created","Updated"];
+  const dt=t=>t?new Date(t).toISOString().slice(0,10):"";
+  const sorted=[...works].sort((a,b)=>(a.series||"~").localeCompare(b.series||"~")||(a.order??9999)-(b.order??9999));
+  const lines=[head.join(",")];
+  for(const w of sorted){
+    const nums=(w.sales||[]).map(s=>s.n).filter(Boolean).sort((x,y)=>x-y).join(" ");
+    const buyers=(w.sales||[]).map(s=>s.buyer).filter(Boolean).join("; ");
+    const row=cols.map(c=>w[c]);
+    row.push(nums,buyers,dt(w.created),dt(w.updated));
+    lines.push(row.map(csvCell).join(","));
+  }
+  const blob=new Blob(["﻿"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download=`raisonne-${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(a.href);
+  toast(`Exported ${works.length} works to CSV`);
+}
+
+/* ---------- Collector catalogue (self-contained public HTML) ---------- */
+async function exportCatalogue(){
+  const pub=works.filter(w=>!["Concept","Proofing"].includes(w.status||""));
+  if(!pub.length){ toast("No collector-ready works yet (Concept/Proofing are excluded)"); return; }
+  const map=new Map();
+  pub.forEach(w=>{ const k=w.series||"Editions"; if(!map.has(k))map.set(k,[]); map.get(k).push(w); });
+  const keys=[...map.keys()].sort((a,b)=>a.localeCompare(b));
+  keys.forEach(k=>map.get(k).sort((a,b)=>(a.order??9999)-(b.order??9999)||(a.title||"").localeCompare(b.title||"")));
+  let body="";
+  for(const k of keys){
+    body+=`<section class="col"><h2>${esc(k)}</h2><div class="grid">`;
+    for(const w of map.get(k)){
+      const rec=await get("images",w.id);
+      const img=rec&&rec.blob?await blobToDataURL(rec.blob):null;
+      const closed=w.status==="Sold out"||w.status==="Retired";
+      const meta=[w.format||w.tier, w.medium, w.edition?`Edition of ${w.edition}`:""].filter(Boolean).join(" · ");
+      body+=`<figure>
+        <div class="fr">${img?`<img src="${img}" alt="${esc(w.title||"")}">`:""}</div>
+        <figcaption>
+          <div class="ttl">${esc(w.title||"Untitled")}${w.year?` <span class="yr">${esc(w.year)}</span>`:""}</div>
+          ${meta?`<div class="mt">${esc(meta)}</div>`:""}
+          ${w.desc?`<p class="ds">${esc(w.desc)}</p>`:""}
+          <div class="av ${closed?"out":""}">${closed?"Sold out":"Available"}${(w.price&&!closed)?` · ${esc(w.price)}`:""}</div>
+        </figcaption>
+      </figure>`;
+    }
+    body+=`</div></section>`;
+  }
+  const html=catalogueHTML(body);
+  const url=URL.createObjectURL(new Blob([html],{type:"text/html"}));
+  window.open(url,"_blank");
+  const a=document.createElement("a");a.href=url;
+  a.download=`signal9-catalogue-${new Date().toISOString().slice(0,10)}.html`;a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  toast(`Catalogue generated — ${pub.length} works`);
+}
+function catalogueHTML(body){
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Signal9 Studio — Catalogue of Editions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Spectral:wght@300;400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--board:#e8e7e1;--paper:#f3f2ed;--ink:#1b1a18;--soft:#6b6a63;--faint:#9a988f;--rule:#cecdc4;--accent:#46595b;--stamp:#7a3b34}
+*{box-sizing:border-box}body{margin:0;background:var(--board);color:var(--ink);font-family:"Spectral",Georgia,serif}
+header{padding:60px 40px 28px;text-align:center;border-bottom:1px solid var(--ink)}
+.mk{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft)}
+header h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:52px;margin:10px 0 6px;letter-spacing:.02em}
+main{max-width:1120px;margin:0 auto;padding:10px 40px 80px}
+.col{margin-top:46px}
+.col h2{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:31px;border-bottom:1px solid var(--ink);padding-bottom:8px;margin:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:36px 28px;margin-top:26px}
+figure{margin:0;break-inside:avoid}
+.fr{background:var(--paper);border:1px solid var(--rule);padding:16px;display:flex;align-items:center;justify-content:center;aspect-ratio:1/1;overflow:hidden}
+.fr img{max-width:100%;max-height:100%;object-fit:contain}
+figcaption{padding-top:12px}
+.ttl{font-family:"Cormorant Garamond",Georgia,serif;font-size:23px;line-height:1.15}
+.ttl .yr{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;color:var(--faint)}
+.mt{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;color:var(--soft);margin-top:4px;letter-spacing:.02em}
+.ds{font-size:14px;line-height:1.55;color:#33322e;margin:8px 0 7px}
+.av{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.05em;color:var(--accent)}
+.av.out{color:var(--stamp)}
+footer{text-align:center;padding:34px;letter-spacing:.1em}
+@media print{body{background:#fff}.fr{border-color:#ddd}}
+</style></head><body>
+<header><div class="mk">Signal9 Studio</div><h1>Catalogue of Editions</h1>
+<div class="mk">${new Date().toLocaleDateString("en-AU",{year:"numeric",month:"long"})}</div></header>
+<main>${body}</main>
+<footer class="mk">Signal9 Studio · Limited-edition archival giclée prints</footer>
+</body></html>`;
+}
+
+/* ---------- Open the master file on disk (File System Access) ---------- */
+let mastersDir=null;
+const FSA_DIR = typeof window.showDirectoryPicker === "function";
+async function linkMastersFolder(){
+  if(!FSA_DIR){ toast("Folder linking needs Chrome/Edge served over http(s)"); return; }
+  try{
+    mastersDir=await window.showDirectoryPicker({id:"raisonne-masters",mode:"read"});
+    await put("meta",{key:"mastersDir",val:mastersDir});
+    refreshMasterHint(); toast(`Masters folder linked: ${mastersDir.name}`);
+  }catch(e){ if(e&&e.name==="AbortError") return; toast("Couldn't link that folder"); }
+}
+async function openMaster(){
+  const name=$("fFile").value.trim();
+  if(!name){ toast("Add the master filename first"); return; }
+  if(!mastersDir){ toast("Link your masters folder first (Registrar section)"); return; }
+  try{
+    if((await mastersDir.queryPermission({mode:"read"}))!=="granted"
+       && (await mastersDir.requestPermission({mode:"read"}))!=="granted"){ toast("Folder access denied"); return; }
+    const fh=await mastersDir.getFileHandle(name);
+    const file=await fh.getFile();
+    const url=URL.createObjectURL(file);
+    window.open(url,"_blank");
+    setTimeout(()=>URL.revokeObjectURL(url),60000);
+  }catch(e){ toast(`Couldn't find “${name}” in ${mastersDir.name}`); }
+}
+function refreshMasterHint(){
+  const fa=$("fileActions"); if(!fa) return;
+  if(!FSA_DIR){ fa.style.display="none"; return; }
+  fa.style.display="flex";
+  $("masterHint").textContent = mastersDir ? `Folder: ${mastersDir.name}` : "No masters folder linked";
 }
 
 /* ============================================================
@@ -1098,12 +1339,41 @@ function wire(){
   $("search").oninput=render;
   $("filterTheme").onchange=render;
   $("filterStatus").onchange=render;
-  $("fEdition").oninput=updateMeter;
+  $("fEdition").oninput=renderSales;
   $("fSold").oninput=updateMeter;
   $("btnExport").onclick=exportBackup;
+  $("btnCsv").onclick=exportCSV;
+  $("btnCatalogue").onclick=exportCatalogue;
   $("btnImport").onclick=()=>$("restoreInput").click();
   $("restoreInput").onchange=e=>{if(e.target.files[0])importBackup(e.target.files[0]);e.target.value="";};
   $("btnPrint").onclick=()=>window.print();
+  $("btnOpenMaster").onclick=openMaster;
+  $("btnLinkFolder").onclick=linkMastersFolder;
+
+  // sales register — edition-number grid + per-sale rows (delegated)
+  $("edGrid").addEventListener("click",e=>{
+    const chip=e.target.closest(".ed-chip"); if(!chip||!editing) return;
+    const n=parseInt(chip.dataset.n);
+    const i=editing.sales.findIndex(s=>s.n===n);
+    if(i>=0) editing.sales.splice(i,1);
+    else editing.sales.push({n,buyer:"",date:new Date().toISOString().slice(0,10),price:""});
+    renderSales();
+    if(i<0){
+      const tag=String(n).padStart(2,"0");
+      const row=[...$("salesList").querySelectorAll(".sale-row")].find(r=>r.querySelector(".sn").textContent===tag);
+      if(row) row.querySelector(".bx").focus();
+    }
+  });
+  $("salesList").addEventListener("input",e=>{
+    const inp=e.target.closest("input[data-f]"); if(!inp||!editing) return;
+    const idx=parseInt(inp.closest(".sale-row").dataset.idx);
+    if(editing.sales[idx]) editing.sales[idx][inp.dataset.f]=inp.value;
+  });
+  $("salesList").addEventListener("click",e=>{
+    const rm=e.target.closest(".rm"); if(!rm||!editing) return;
+    editing.sales.splice(parseInt(rm.closest(".sale-row").dataset.idx),1);
+    renderSales();
+  });
   $("btnInstall").onclick=async()=>{
     if(!deferredPrompt) return;
     deferredPrompt.prompt();
@@ -1193,6 +1463,11 @@ async function boot(){
   wire();
   const t=await get("meta","theme");
   await setTheme(t&&t.val?t.val:"light");
+  // restore registrar state
+  const md=await get("meta","mastersDir"); mastersDir=md&&md.val?md.val:null;
+  const bf=await get("meta","backupFile"); backupFileHandle=bf&&bf.val?bf.val:null;
+  const pc=await get("meta","pendingChanges"); pendingChanges=pc&&pc.val?pc.val:0;
+  updateNudge(); refreshMasterHint();
   works=await all("works");
   render();
 }

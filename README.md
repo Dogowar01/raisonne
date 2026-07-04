@@ -40,6 +40,25 @@ profile, never uploaded. Because that store *can* be cleared (clearing site data
 timestamped JSON containing all metadata **and** the preview images. **Restore** merges it back
 in. Back up before anything risky.
 
+- The **Back up** button shows a small oxblood dot when there are changes since your last backup.
+- In Chrome/Edge, Back up uses the **File System Access API** — the first backup asks where to
+  save, and every backup after that overwrites the same file with one click.
+- **CSV** exports the register (metadata + sold numbers/buyers, no images) for spreadsheets or
+  insurance.
+
+## Registrar features
+
+- **Per-number sale tracking:** in a work's card, the *Sales register* shows the whole edition as
+  a number grid — tap a number to mark it sold, then record the buyer, date and price. The Sold
+  count and the edition meter follow it automatically.
+- **Open the master file on disk:** *Link masters folder…* once (Chrome/Edge), then *Open master*
+  resolves the work's master filename in that folder and opens it. (Browsers can preview images /
+  PDFs and download other formats; they can't launch an external editor directly.)
+- **Collector catalogue:** the **Catalogue** button generates a self-contained public HTML page
+  (embedded images, grouped by collection, with availability and price) — print it to PDF for
+  collectors. It deliberately omits sold counts, buyers and private notes to protect edition
+  integrity. Concept/Proofing works are excluded.
+
 ## Visual identity
 
 - **Signal9 mark:** a nine-bar "signal" logomark (verdigris) sits in the masthead beside the
