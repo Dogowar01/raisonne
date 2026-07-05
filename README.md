@@ -59,6 +59,22 @@ in. Back up before anything risky.
   collectors. It deliberately omits sold counts, buyers and private notes to protect edition
   integrity. Concept/Proofing works are excluded.
 
+## The studio suite
+
+- **Market mode** (toolbar **Market**): a stall companion. Tap a work to sell its next available
+  number; a running day total and count sit up top, with one-tap **Undo**. Everything writes
+  straight into the register.
+- **Collectors (CRM)** (toolbar **Collectors**): buyers with contact details, purchase history and
+  totals. **Sync buyers** pulls names from your recorded sales; sale rows autocomplete against your
+  collectors. Each work has a **waitlist** with a **Notify** button (bcc mailto to those collectors).
+- **Certificates of Authenticity**: each sale row has a **COA** button — a printable certificate for
+  that numbered impression (edition n/N, medium, buyer, date, studio mark, signature line).
+- **Fulfilment**: every sale carries a stage — *Reserved → Paid → Shipped*.
+- **Studio dashboard** (toolbar **Studio**): revenue, impressions sold, profit (from per-print
+  costs), remaining and closed editions; breakdowns by collection, best sellers, and revenue by year.
+- **The vault** (toolbar **Vault**): requests **persistent storage** so the browser won't evict your
+  data, and shows a usage meter, backup age and a health warning. Back-ups now include collectors too.
+
 ## Visual identity
 
 Tuned to the **Signal9 Studio aesthetic**: beauty-in-darkness, warm and atmospheric, never flat.
