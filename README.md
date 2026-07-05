@@ -100,9 +100,22 @@ Open **Palette** in the toolbar (studio-wide) or **Colour tools** on a work's ca
 - **Print-fit** — on a work's card, the image's original pixels show an **A2 dpi estimate** with a
   warning if it's too low-res to print large.
 
-## Visual identity
+## Visual identity — a gallery at night
 
 Tuned to the **Signal9 Studio aesthetic**: beauty-in-darkness, warm and atmospheric, never flat.
+The app opens **dark by default** — a gallery after hours where the artwork is the light source:
+
+- **A breathing room:** three slow pools of ember/verdigris/oxblood light drift behind everything,
+  with dust motes rising through the beams and film grain on the air. (All of it stands down for
+  `prefers-reduced-motion`, and it's compositor-cheap — transforms and one small canvas.)
+- **The artwork lights the wall:** each plate casts a glow in **its own palette** onto the ground
+  beneath it — a rust print warms its corner of the room, a teal print cools it.
+- **The signal transmits:** the fractured nine-bar mark shimmers bar-by-bar, like a live signal.
+- **Collections as rooms:** giant italic **ghost numerals** (01, 02…) sit behind each collection
+  title, with hairline rules that fade out in the collection's own colour.
+- **Living details:** the accession drawer wears a gradient strip of its work's palette; grid ↔
+  ledger switches recompose with a staggered rise; dialogs carry brass→verdigris identity strips;
+  the empty state is the glowing mark itself.
 
 - **Palette:** aged-paper warmth in light, **warm charcoal** in dark (not cool black), with
   atmospheric radial glows, a soft vignette, and a runtime-generated **film-grain** overlay so

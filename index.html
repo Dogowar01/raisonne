@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#e7ddcd">
+<meta name="theme-color" content="#151110">
 <meta name="description" content="A registrar's ledger for Signal9 Studio fine-art print editions — offline, private, single-file.">
 <title>Raisonné — Signal9 Studio</title>
 <!-- Installable PWA: manifest + icons. Harmless on file:// (relative refs just no-op). -->
@@ -59,32 +59,32 @@
   --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 [data-theme="dark"]{
-  --board:#161210;      /* warm charcoal (not cool black) */
-  --paper:#221b15;      /* warm dark card */
-  --paper-2:#1b1510;
-  --ink:#ece2d2;        /* warm off-white */
-  --ink-soft:#a99a84;
+  --board:#151110;      /* gallery at night — warm charcoal, never cool black */
+  --paper:#231a14;      /* warm dark card */
+  --paper-2:#1b140f;
+  --ink:#efe4d2;        /* warm off-white */
+  --ink-soft:#ad9d85;
   --ink-faint:#6f6252;
-  --rule:#392f24;
-  --rule-soft:#2a2118;
+  --rule:#3d3126;
+  --rule-soft:#2c2119;
   --accent:#8fb2ad;     /* verdigris lifts */
   --accent-lift:#a8c7c2;
-  --brass:#d3a24e;      /* molten amber */
+  --brass:#d9a75a;      /* molten amber — the light source */
   --stamp:#cd8073;      /* warm oxblood */
-  --field:#1a140f;
-  --glow-1:rgba(211,162,78,.19);   /* ember glow */
-  --glow-2:rgba(143,178,173,.11);
-  --glow-3:rgba(205,128,115,.09);  /* warm oxblood bloom */
-  --vignette:rgba(0,0,0,.52);
-  --sheen:rgba(255,240,214,.14);
-  --mat-hi:rgba(255,238,214,.06);
-  --mat-lo:rgba(0,0,0,.28);
-  --frame-in:inset 0 2px 6px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,238,214,.05);
+  --field:#1a130d;
+  --glow-1:rgba(217,167,90,.22);   /* ember glow */
+  --glow-2:rgba(143,178,173,.13);
+  --glow-3:rgba(205,128,115,.11);  /* warm oxblood bloom */
+  --vignette:rgba(0,0,0,.55);
+  --sheen:rgba(255,240,214,.15);
+  --mat-hi:rgba(255,238,214,.07);
+  --mat-lo:rgba(0,0,0,.3);
+  --frame-in:inset 0 2px 6px rgba(0,0,0,.42), inset 0 0 0 1px rgba(255,238,214,.05);
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 34px rgba(0,0,0,.5);
   --shadow-soft:0 1px 2px rgba(0,0,0,.4);
-  --shadow-3d:0 2px 6px rgba(0,0,0,.5), 0 20px 44px -12px rgba(0,0,0,.7);
-  --bar-grad:linear-gradient(105deg, #3a2c17 0%, var(--paper-2) 30%, var(--board) 64%, #1e2b28 100%);
-  --bar-edge:rgba(0,0,0,.5);
+  --shadow-3d:0 2px 6px rgba(0,0,0,.5), 0 20px 44px -12px rgba(0,0,0,.72);
+  --bar-grad:linear-gradient(105deg, #463218 0%, #241c14 30%, #17110e 64%, #1c2b27 100%);
+  --bar-edge:rgba(0,0,0,.55);
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
@@ -115,7 +115,7 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 ::selection{background:var(--accent);color:var(--paper)}
 
 /* ---------- Frame ---------- */
-.app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh;position:relative;z-index:1}
 
 /* ---------- Masthead ---------- */
 .masthead{
@@ -672,6 +672,95 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
   .lrow .col.tier,.lrow .col.year,.list-head .h-tier,.list-head .h-year{display:none}
 }
 
+/* ============================================================
+   GALLERY AT NIGHT — the living overhaul.
+   The room breathes, the artwork is the light source, the signal
+   transmits. Every animation stands down for reduced-motion.
+   ============================================================ */
+/* breathing atmosphere — three slow pools of light behind everything */
+#atmo{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+/* no gaussian blur — the radial gradients are already soft, and large
+   blurred layers stall capture/compositing (see perf note on grain) */
+#atmo i{position:absolute;width:78vmax;height:78vmax;border-radius:50%;will-change:transform}
+#atmo i:nth-child(1){left:-26vmax;top:-30vmax;background:radial-gradient(circle, var(--glow-1) 0%, transparent 58%);animation:drift 70s ease-in-out infinite alternate}
+#atmo i:nth-child(2){right:-28vmax;top:-14vmax;background:radial-gradient(circle, var(--glow-3) 0%, transparent 56%);animation:drift 96s ease-in-out infinite alternate-reverse}
+#atmo i:nth-child(3){left:4vmax;bottom:-36vmax;background:radial-gradient(circle, var(--glow-2) 0%, transparent 58%);animation:drift 84s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate(10vmax,7vmax) scale(1.16)}}
+#dust{position:fixed;inset:0;z-index:5;pointer-events:none}
+
+/* the signal transmits — mark bars shimmer in sequence */
+.mark rect{transform-box:fill-box;transform-origin:50% 100%;animation:sig 3.8s ease-in-out infinite}
+@keyframes sig{0%,100%{opacity:.5;transform:scaleY(.88)}50%{opacity:1;transform:scaleY(1)}}
+.mark rect:nth-child(1){animation-delay:.0s}.mark rect:nth-child(2){animation-delay:.16s}
+.mark rect:nth-child(3){animation-delay:.32s}.mark rect:nth-child(4){animation-delay:.40s}
+.mark rect:nth-child(5){animation-delay:.55s}.mark rect:nth-child(6){animation-delay:.62s}
+.mark rect:nth-child(7){animation-delay:.78s}.mark rect:nth-child(8){animation-delay:.86s}
+.mark rect:nth-child(9){animation-delay:1.0s}.mark rect:nth-child(10){animation-delay:1.18s}
+.mark rect:nth-child(11){animation-delay:1.26s}.mark rect:nth-child(12){animation-delay:1.42s}
+.mark rect:nth-child(13){animation-delay:1.5s}.mark rect:nth-child(14){animation-delay:1.66s}
+.mark rect:nth-child(15){animation-delay:1.74s}
+
+/* brass numerals in the tally; luminous focus rings */
+.tally b{color:var(--brass)}
+.search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent)}
+.tsel:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent)}
+.field input:focus,.field textarea:focus,.field select:focus{box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent)}
+.rail a.active{background:color-mix(in srgb, var(--set,var(--accent)) 12%, transparent)}
+.rail a .dot{box-shadow:0 0 8px color-mix(in srgb, var(--set, transparent) 55%, transparent)}
+
+/* collections as rooms — ghost numerals + palette-fade rules */
+.series-head{position:relative}
+.gnum{
+  position:absolute;left:-6px;top:-42px;font-family:var(--serif);font-style:italic;
+  font-size:92px;line-height:1;color:var(--ink);opacity:.05;pointer-events:none;user-select:none;
+}
+[data-theme="dark"] .gnum{opacity:.08;color:var(--brass)}
+.series.has-set .series-head{
+  border-bottom-color:transparent;
+  border-image:linear-gradient(90deg, var(--set), color-mix(in srgb, var(--set) 35%, transparent) 55%, transparent) 1;
+}
+
+/* the artwork lights the wall — each plate glows its own palette */
+.frame img{transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+.plate:hover .frame img{transform:scale(1.04)}
+.plate.has-pal .mount{
+  box-shadow:var(--shadow-3d), inset 0 1px 0 var(--mat-hi), inset 0 -18px 30px -24px var(--mat-lo),
+    0 22px 54px -20px color-mix(in srgb, var(--dom) 42%, transparent);
+}
+.plate.has-pal:hover .mount{
+  box-shadow:0 3px 8px rgba(0,0,0,.28), 0 36px 74px -18px color-mix(in srgb, var(--dom) 64%, transparent);
+}
+.plate-caption .t{font-style:italic}
+.lrow .title{font-style:italic}
+
+/* the accession card wears its work's palette */
+.dstrip{height:4px;flex:0 0 auto;background:linear-gradient(90deg,var(--brass),var(--accent))}
+
+/* every room announces itself — identity strips on dialogs */
+.dash{overflow:hidden}
+.dash::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;z-index:1;
+  background:linear-gradient(90deg,var(--brass),var(--accent),transparent)}
+.vault{overflow:hidden}
+.vault::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--brass),var(--accent))}
+
+/* view morph — the room recomposes when switching grid/ledger */
+.cat.swap .plate,.cat.swap .lrow{animation:riseIn .4s cubic-bezier(.2,.7,.2,1) both}
+.cat.swap .plate:nth-child(2),.cat.swap .lrow:nth-child(3){animation-delay:.045s}
+.cat.swap .plate:nth-child(3),.cat.swap .lrow:nth-child(4){animation-delay:.09s}
+.cat.swap .plate:nth-child(4),.cat.swap .lrow:nth-child(5){animation-delay:.135s}
+.cat.swap .plate:nth-child(n+5),.cat.swap .lrow:nth-child(n+6){animation-delay:.18s}
+
+/* the empty gallery, waiting */
+.empty-state .mark-lg{width:108px;height:76px;margin-bottom:14px;fill:var(--brass);
+  filter:drop-shadow(0 0 14px color-mix(in srgb, var(--brass) 45%, transparent))}
+.empty-state h3{font-style:italic;font-size:34px}
+
+@media (prefers-reduced-motion:reduce){
+  #atmo i,.mark rect{animation:none}
+  .mark rect{opacity:1;transform:none}
+}
+
 /* visible focus — keyboard only, doesn't disturb mouse users */
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .field input:focus-visible,.field textarea:focus-visible,.field select:focus-visible,
@@ -701,6 +790,10 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 </style>
 </head>
 <body>
+<!-- breathing atmosphere — three drifting pools of gallery light -->
+<div id="atmo" aria-hidden="true"><i></i><i></i><i></i></div>
+<!-- dust motes in the spotlights -->
+<canvas id="dust" aria-hidden="true"></canvas>
 <div class="app">
   <!-- Masthead -->
   <div class="masthead">
@@ -787,6 +880,7 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 <!-- Drawer -->
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer">
+  <div class="dstrip" id="dstrip" aria-hidden="true"></div>
   <div class="drawer-head">
     <span class="acc" id="accNo">New accession</span>
     <button class="x" id="drawerClose"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
@@ -1224,9 +1318,9 @@ function render(){
   if(total===0){
     cat.innerHTML=`
       <div class="empty-state">
-        <div class="glyph"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+        <svg class="mark mark-lg" viewBox="0 0 34 24" aria-hidden="true"><rect x="0" y="14" width="2" height="10"/><rect x="3.8" y="9" width="2" height="15"/><rect x="9.1" y="4" width="2" height="2.9"/><rect x="7.5" y="8.3" width="2" height="15.7"/><rect x="12.9" y="0" width="2" height="8.2"/><rect x="11.3" y="9.6" width="2" height="14.4"/><rect x="16.6" y="6" width="2" height="3.5"/><rect x="15" y="10.9" width="2" height="13.1"/><rect x="18.8" y="11" width="2" height="13"/><rect x="24.1" y="2" width="2" height="10"/><rect x="22.5" y="13.4" width="2" height="10.6"/><rect x="27.9" y="8" width="2" height="5.3"/><rect x="26.3" y="14.7" width="2" height="9.3"/><rect x="31.6" y="13" width="2" height="1.6"/><rect x="30" y="16" width="2" height="8"/></svg>
         <h3>An empty register</h3>
-        <p>Drag print images anywhere onto this window to begin the catalogue, or add a work by hand.</p>
+        <p>Drag print images anywhere onto this window — each becomes a mounted plate in the catalogue.</p>
         <div class="k">Drop images · or press “Add work”</div>
       </div>`;
     return;
@@ -1237,11 +1331,12 @@ function render(){
   }
 
   let html="";
-  keys.forEach(k=>{
+  keys.forEach((k,ki)=>{
     const list=map.get(k);
     const isColl=collapsed.has(k);
     html+=`<section class="series ${isColl?"collapsed":""}" id="s-${slug(k)}" data-series="${esc(k)}">
       <div class="series-head" data-toggle="${esc(k)}">
+        <span class="gnum" aria-hidden="true">${String(ki+1).padStart(2,"0")}</span>
         <span class="set-pal" aria-hidden="true"></span>
         <h2>${esc(k)}</h2>
         <span class="meta">${list.length} plate${list.length!==1?"s":""}</span>
@@ -1348,6 +1443,12 @@ function openDrawer(work){
   $("fFile").value=editing.file||"";
   $("fNotes").value=editing.notes||"";
   $("fWaitlist").value=(editing.waitlist||[]).join(", ");
+  // the accession card wears its work's palette
+  const ds=$("dstrip"); ds.style.background="";
+  if(work) paletteFor(work).then(cols=>{
+    if(cols&&cols.length&&editing&&editing.id===work.id)
+      ds.style.background=`linear-gradient(90deg, ${cols.join(", ")})`;
+  });
   editing.sales = Array.isArray(editing.sales) ? editing.sales.map(s=>({...s})) : [];
   renderSales();
   updateMargin();
@@ -2234,8 +2335,22 @@ async function move(id,dir){
 async function setTheme(t){
   document.documentElement.setAttribute("data-theme",t);
   $("btnTheme").textContent = t==="dark" ? "☀" : "☾";
-  document.querySelector('meta[name=theme-color]').setAttribute("content", t==="dark"?"#161210":"#e7ddcd");
+  document.querySelector('meta[name=theme-color]').setAttribute("content", t==="dark"?"#151110":"#e7ddcd");
+  dustColor = t==="dark" ? "#e6cd9a" : "#7a5c2e";
   await put("meta",{key:"theme",val:t});
+}
+
+/* view morph — recompose the room when switching grid/ledger */
+function swapView(v){
+  if(view===v) return;
+  view=v;
+  $("viewGrid").classList.toggle("on",v==="grid");
+  $("viewList").classList.toggle("on",v==="list");
+  render();
+  const cat=$("cat");
+  cat.classList.remove("swap"); void cat.offsetWidth;
+  cat.classList.add("swap");
+  setTimeout(()=>cat.classList.remove("swap"),700);
 }
 
 /* ============================================================
@@ -2342,8 +2457,8 @@ function wire(){
     deferredPrompt=null; $("btnInstall").hidden=true;
   };
   $("btnTheme").onclick=()=>setTheme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark");
-  $("viewGrid").onclick=()=>{view="grid";$("viewGrid").classList.add("on");$("viewList").classList.remove("on");render();};
-  $("viewList").onclick=()=>{view="list";$("viewList").classList.add("on");$("viewGrid").classList.remove("on");render();};
+  $("viewGrid").onclick=()=>swapView("grid");
+  $("viewList").onclick=()=>swapView("list");
 
   // add-image button in drawer
   $("cardImage").onclick=e=>{if(e.target.closest(".repl"))return;if($("cardImage").classList.contains("novel"))$("replaceInput").click();};
@@ -2456,6 +2571,38 @@ function installCrack(){
   const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='${W}' height='${H}' viewBox='0 0 ${W} ${H}'>${paths}</svg>`;
   document.documentElement.style.setProperty("--crack",`url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
 }
+/* Dust motes — a few dozen slow specks drifting up through the gallery
+   light. Cheap (one small canvas, ~40 arcs/frame), skipped entirely
+   for reduced-motion, and idle while the tab is hidden. */
+let dustColor="#e6cd9a";
+function installDust(){
+  if(matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+  const c=$("dust"); if(!c) return;
+  const x=c.getContext("2d"); let W,H;
+  const size=()=>{W=c.width=innerWidth;H=c.height=innerHeight;};
+  size(); addEventListener("resize",size);
+  const N=Math.min(44,Math.max(24,Math.round(innerWidth/34)));
+  const motes=[];
+  for(let i=0;i<N;i++) motes.push({
+    x:Math.random()*innerWidth, y:Math.random()*innerHeight,
+    r:.5+Math.random()*1.6, s:.05+Math.random()*.2,
+    ph:Math.random()*6.28, a:.04+Math.random()*.14
+  });
+  (function tick(){
+    requestAnimationFrame(tick);
+    if(document.hidden) return;
+    x.clearRect(0,0,W,H);
+    x.fillStyle=dustColor;
+    for(const m of motes){
+      m.y-=m.s; m.x+=Math.sin(m.ph+=.0025+m.s*.004)*.12;
+      if(m.y<-4){ m.y=H+4; m.x=Math.random()*W; }
+      x.globalAlpha=m.a*(.6+.4*Math.sin(m.ph*3));
+      x.beginPath(); x.arc(m.x,m.y,m.r,0,6.283); x.fill();
+    }
+    x.globalAlpha=1;
+  })();
+}
+
 /* Live 3D — plates tilt toward the cursor and a glass sheen follows.
    Delegated on #cat (survives re-renders); disabled for reduced-motion. */
 function installTilt(){
@@ -2481,8 +2628,9 @@ async function boot(){
   installGrain();
   installCrack();
   installTilt();
+  installDust();
   const t=await get("meta","theme");
-  await setTheme(t&&t.val?t.val:"light");
+  await setTheme(t&&t.val?t.val:"dark");   // the gallery opens at night
   // restore registrar state
   const md=await get("meta","mastersDir"); mastersDir=md&&md.val?md.val:null;
   const bf=await get("meta","backupFile"); backupFileHandle=bf&&bf.val?bf.val:null;

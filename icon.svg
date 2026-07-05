@@ -1,7 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Raisonné">
-  <!-- verdigris tile, cream serif monogram inside a plate-mark frame -->
-  <rect width="512" height="512" fill="#46595b"/>
-  <rect x="72" y="72" width="368" height="368" fill="none" stroke="#f3f2ed" stroke-opacity="0.32" stroke-width="2"/>
-  <text x="256" y="268" fill="#f3f2ed" text-anchor="middle" dominant-baseline="central"
-        font-family="Georgia, 'Times New Roman', serif" font-size="288" font-weight="500">R</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Raisonné — Signal9 Studio">
+  <!-- gallery at night: warm charcoal, brass fractured signal, plate-mark frame -->
+  <rect width="512" height="512" fill="#151110"/>
+  <rect x="60" y="60" width="392" height="392" fill="none" stroke="#d9a75a" stroke-opacity="0.3" stroke-width="4"/>
+  <g fill="#d9a75a" transform="translate(96,143) scale(9.4)">
+    <rect x="0"    y="14"   width="2" height="10"/>
+    <rect x="3.8"  y="9"    width="2" height="15"/>
+    <rect x="9.1"  y="4"    width="2" height="2.9"/>
+    <rect x="7.5"  y="8.3"  width="2" height="15.7"/>
+    <rect x="12.9" y="0"    width="2" height="8.2"/>
+    <rect x="11.3" y="9.6"  width="2" height="14.4"/>
+    <rect x="16.6" y="6"    width="2" height="3.5"/>
+    <rect x="15"   y="10.9" width="2" height="13.1"/>
+    <rect x="18.8" y="11"   width="2" height="13"/>
+    <rect x="24.1" y="2"    width="2" height="10"/>
+    <rect x="22.5" y="13.4" width="2" height="10.6"/>
+    <rect x="27.9" y="8"    width="2" height="5.3"/>
+    <rect x="26.3" y="14.7" width="2" height="9.3"/>
+    <rect x="31.6" y="13"   width="2" height="1.6"/>
+    <rect x="30"   y="16"   width="2" height="8"/>
+  </g>
 </svg>
