@@ -75,6 +75,21 @@ in. Back up before anything risky.
 - **The vault** (toolbar **Vault**): requests **persistent storage** so the browser won't evict your
   data, and shows a usage meter, backup age and a health warning. Back-ups now include collectors too.
 
+## Palette studio (colour tools for making art)
+
+Open **Palette** in the toolbar (studio-wide) or **Colour tools** on a work's card.
+
+- **Eyedropper** — tap anywhere on a print to sample that exact colour; it copies to your clipboard
+  and joins your picked swatches.
+- **Swatches** — the auto-extracted palette and colour **harmonies** (complementary / analogous /
+  triadic) as chips; click any to copy the hex.
+- **Value & composition** — toggle a **grayscale** value view and **thirds / golden / diagonal**
+  overlays on the image (non-destructive) to check tone and composition.
+- **Export** — download a palette as **GIMP `.gpl`**, **Adobe `.ase`**, **Procreate `.swatches`**,
+  or a **PNG swatch card** — a direct bridge from a finished edition back into your next canvas.
+- **Studio palette** — aggregates the dominant colours across every work into your Signal9
+  signature palette (overall and per collection), exportable as one file.
+
 ## Visual identity
 
 Tuned to the **Signal9 Studio aesthetic**: beauty-in-darkness, warm and atmospheric, never flat.

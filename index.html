@@ -625,6 +625,41 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 .cform input,.cform textarea{width:100%;background:var(--paper);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;font-size:13px;font-family:var(--prose);outline:none}
 .cform input:focus,.cform textarea:focus{border-color:var(--accent)}
 
+/* palette studio */
+.pal{width:940px}
+.pal-work{display:grid;grid-template-columns:minmax(0,1fr) 264px;gap:22px}
+@media (max-width:720px){.pal-work{grid-template-columns:1fr}}
+.pstage{position:relative;background:var(--paper-2);border:1px solid var(--rule-soft);border-radius:6px;box-shadow:var(--frame-in);display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:260px}
+.pcanvas{max-width:100%;max-height:60vh;display:block;cursor:crosshair;transition:filter .2s}
+.pcanvas.value{filter:grayscale(1) contrast(1.05)}
+.poverlay{position:absolute;inset:0;pointer-events:none;filter:drop-shadow(0 0 1px rgba(0,0,0,.6))}
+.poverlay line,.poverlay path{stroke:rgba(255,255,255,.75);stroke-width:1;fill:none;vector-effect:non-scaling-stroke}
+.ptools{display:flex;flex-direction:column;gap:16px}
+.ptool-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+.swrow{display:flex;flex-wrap:wrap;gap:7px}
+.sw{width:34px;height:34px;border-radius:5px;cursor:pointer;position:relative;box-shadow:0 0 0 1px rgba(27,26,24,.12);transition:transform .12s}
+.sw:hover{transform:scale(1.1)}
+[data-theme="dark"] .sw{box-shadow:0 0 0 1px rgba(0,0,0,.45)}
+.sw.big{width:44px;height:44px}
+.sw .hx{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8px;color:var(--ink-faint);white-space:nowrap;opacity:0;transition:opacity .15s}
+.sw:hover .hx{opacity:1}
+.pchips{display:flex;flex-wrap:wrap;gap:6px}
+.pchip{font-family:var(--mono);font-size:10.5px;letter-spacing:.02em;display:inline-flex;align-items:center;gap:6px;padding:4px 8px 4px 5px;border:1px solid var(--rule);border-radius:20px;background:var(--field);color:var(--ink-soft);cursor:pointer}
+.pchip:hover{border-color:var(--ink-faint);color:var(--ink)}
+.pchip i{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+.pseg{display:inline-flex;border:1px solid var(--rule);border-radius:4px;overflow:hidden;flex-wrap:wrap}
+.pseg button{background:var(--field);border:0;padding:6px 9px;font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--ink-soft);cursor:pointer}
+.pseg button+button{border-left:1px solid var(--rule)}
+.pseg button.on{background:var(--accent);color:var(--paper)}
+[data-theme="dark"] .pseg button.on{color:var(--board)}
+.pexports{display:flex;flex-wrap:wrap;gap:7px}
+.picked-empty{font-family:var(--mono);font-size:10px;color:var(--ink-faint);letter-spacing:.02em}
+.house-h{font-family:var(--serif);font-size:19px;color:var(--ink);margin:22px 0 10px;font-style:italic}
+.house-h:first-child{margin-top:4px}
+.house-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:8px}
+.pal-empty{text-align:center;color:var(--ink-soft);padding:44px 0;font-family:var(--prose)}
+.pal-empty h3{font-family:var(--serif);font-style:italic;font-size:24px;color:var(--ink);margin:0 0 6px}
+
 /* scrollbars */
 .cat::-webkit-scrollbar,.rail::-webkit-scrollbar,.drawer-body::-webkit-scrollbar{width:10px}
 .cat::-webkit-scrollbar-thumb,.rail::-webkit-scrollbar-thumb,.drawer-body::-webkit-scrollbar-thumb{background:var(--rule);border:3px solid var(--board);border-radius:6px}
@@ -718,6 +753,7 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
     <button class="tbtn" id="btnPrint" title="Print catalogue"><svg viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print</button>
     <button class="tbtn" id="btnMarket" title="Market mode — sell at the stall"><svg viewBox="0 0 24 24"><path d="M3 9l1-5h16l1 5"/><path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M9 13h6"/></svg>Market</button>
     <button class="tbtn" id="btnCollectors" title="Collectors — your buyers & waitlists"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M4 20c0-3 2.5-5 5-5s5 2 5 5"/><path d="M16 5a3 3 0 0 1 0 6"/><path d="M17 15c2 .5 3.5 2.3 3.5 5"/></svg>Collectors</button>
+    <button class="tbtn" id="btnPalette" title="Palette studio — colour tools & swatches"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c1.4 0 2-1 2-2 0-1.3-1-1.5-1-2.5 0-.8.7-1.5 1.5-1.5H18a3 3 0 0 0 3-3c0-3.9-4-6.5-9-6.5z"/><circle cx="7.5" cy="11.5" r="1"/><circle cx="12" cy="8" r="1"/><circle cx="16.5" cy="11" r="1"/></svg>Palette</button>
     <button class="tbtn" id="btnDash" title="Studio dashboard — sales, revenue, margins"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>Studio</button>
     <button class="tbtn" id="btnCatalogue" title="Generate a collector catalogue (public HTML)"><svg viewBox="0 0 24 24"><path d="M4 4h9a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H4z"/><path d="M20 4h-4a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H20z"/></svg>Catalogue</button>
     <button class="tbtn" id="btnVault" title="Data vault — storage health & backup"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>Vault</button>
@@ -759,6 +795,9 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
     <div class="card-image novel" id="cardImage">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
       <span>Drop or click to add the print image</span>
+    </div>
+    <div class="file-actions" id="paletteAction" style="display:none;margin:-12px 0 16px">
+      <button type="button" class="minibtn" id="btnPaletteWork"><svg viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2a10 10 0 1 0 0 20c1 0 1.5-.8 1.5-1.7 0-1.1-.9-1.3-.9-2.3 0-.7.6-1.2 1.3-1.2H16a4 4 0 0 0 4-4c0-4.4-3.6-8-8-8z"/></svg>Colour tools</button>
     </div>
 
     <div class="field title-field">
@@ -892,6 +931,19 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
     </div>
   </div>
   <div class="dash-body" id="crmBody"></div>
+</div>
+
+<!-- Palette studio -->
+<div class="dash-scrim" id="palScrim"></div>
+<div class="dash pal" id="pal" role="dialog" aria-label="Palette studio">
+  <div class="dash-head">
+    <h2 id="palTitle">Palette</h2><span class="dash-sub" id="palSub"></span>
+    <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+      <button class="minibtn" id="palHouse">Studio palette</button>
+      <button class="x" id="palClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+  </div>
+  <div class="dash-body" id="palBody"></div>
 </div>
 
 <script>
@@ -1291,6 +1343,7 @@ function openDrawer(work){
     if(u){ci.classList.remove("novel");ci.innerHTML=`<img src="${u}"><button class="repl" id="replBtn">Replace</button>`;
       ci.querySelector("#replBtn").onclick=e=>{e.stopPropagation();$("replaceInput").click();};}
     else{ci.classList.add("novel");ci.innerHTML=`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Drop or click to add the print image</span>`;}
+    $("paletteAction").style.display = u ? "block" : "none";
   };
   if(work){ hydrateUrl(work.id).then(setImg); } else setImg(null);
   $("btnDelete").style.display = work ? "" : "none";
@@ -1433,6 +1486,7 @@ function nextQueued(){
   const ci=$("cardImage");ci.classList.remove("novel");
   ci.innerHTML=`<img src="${u}"><button class="repl" id="replBtn">Replace</button>`;
   ci.querySelector("#replBtn").onclick=e=>{e.stopPropagation();$("replaceInput").click();};
+  $("paletteAction").style.display="block";
   if(queue.length) toast(`${queue.length+1} images queued — fill in each and save`);
 }
 
@@ -1920,6 +1974,136 @@ function updateMarketTally(){
   $("marketUndo").disabled=!marketSession.length;
 }
 
+/* ---------- Palette studio — colour tools for making art ---------- */
+let palWork=null, palPicked=[], palExtractedCols=[], houseCols=[], palOverlay="none", palValue=false;
+function rgbHex(r,g,b){return "#"+[r,g,b].map(x=>Math.max(0,Math.min(255,x|0)).toString(16).padStart(2,"0")).join("");}
+function hexToHsv(hex){ let [r,g,b]=hexToRgb(hex).map(x=>x/255); const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn; let h=0;
+  if(d){ if(mx===r)h=((g-b)/d)%6; else if(mx===g)h=(b-r)/d+2; else h=(r-g)/d+4; h/=6; if(h<0)h+=1; } return [h, mx?d/mx:0, mx]; }
+function swatchHTML(c){ return `<div class="sw" data-hex="${c}" title="${c}" style="background:${c}"><span class="hx">${c}</span></div>`; }
+function copyHex(hex){ try{ navigator.clipboard&&navigator.clipboard.writeText(hex); }catch(e){} toast(`Copied ${hex}`); }
+function harmonyFrom(hex){
+  const [r,g,b]=hexToRgb(hex); const hsl=rgbToHsl(r,g,b); const h=hsl[0];
+  const at=dh=>hslToHex(((h+dh/360)%1+1)%1, Math.max(.22,Math.min(.72,hsl[1])), Math.max(.3,Math.min(.62,hsl[2])));
+  return [{l:"Comp",hex:at(180)},{l:"Analog −",hex:at(-30)},{l:"Analog +",hex:at(30)},{l:"Triad",hex:at(120)},{l:"Triad",hex:at(240)}];
+}
+function dedupeColorsList(list){
+  const out=[]; list.forEach(c=>{ if(!out.some(o=>colorClose(o,c))) out.push(c); });
+  return out.sort((a,b)=>{ const A=rgbToHsl(...hexToRgb(a)), B=rgbToHsl(...hexToRgb(b)); return A[0]-B[0]||A[2]-B[2]; });
+}
+function openPaletteFor(work){ palWork=work; palPicked=[]; palValue=false; palOverlay="none"; $("palScrim").classList.add("show"); $("pal").classList.add("show"); renderPaletteWork(); }
+function openPaletteHouse(){ palWork=null; $("palScrim").classList.add("show"); $("pal").classList.add("show"); renderPaletteHouse(); }
+function closePalette(){ $("palScrim").classList.remove("show"); $("pal").classList.remove("show"); }
+async function renderPaletteWork(){
+  const w=palWork;
+  const url = stagedImage ? stagedImage.url : (w? await hydrateUrl(w.id):null);
+  $("palTitle").textContent="Palette"; $("palSub").textContent = w?(w.title||"Untitled"):"This work";
+  const body=$("palBody");
+  if(!url){ body.innerHTML=`<div class="pal-empty"><h3>No image yet</h3><p>Add the print image to this work, then open colour tools.</p></div>`; return; }
+  body.innerHTML=`<div class="pal-work">
+    <div>
+      <div class="pstage"><canvas class="pcanvas" id="palCanvas"></canvas><svg class="poverlay" id="palOverlaySvg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg></div>
+      <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+        <div><div class="ptool-h">Overlays</div><div class="pseg" id="palOverlaySeg">
+          <button data-ov="none" class="on">None</button><button data-ov="thirds">Thirds</button><button data-ov="golden">Golden</button><button data-ov="diag">Diagonals</button></div></div>
+        <div><div class="ptool-h">View</div><div class="pseg" id="palValueSeg">
+          <button data-val="0" class="on">Colour</button><button data-val="1">Value</button></div></div>
+      </div>
+      <div class="picked-empty" style="margin-top:11px">Tap anywhere on the print to sample a colour — it copies to your clipboard.</div>
+    </div>
+    <div class="ptools">
+      <div><div class="ptool-h">In this print</div><div class="swrow" id="palExtracted"></div></div>
+      <div><div class="ptool-h">Picked <button class="minibtn" id="palClear" style="float:right;padding:2px 8px">Clear</button></div><div class="pchips" id="palPickedChips"></div></div>
+      <div><div class="ptool-h">Harmony <span id="palHarmSrc" style="color:var(--ink-faint)"></span></div><div class="swrow" id="palHarmony"></div></div>
+      <div><div class="ptool-h">Export palette</div><div class="pexports">
+        <button class="minibtn" data-exp="gpl">GIMP</button><button class="minibtn" data-exp="ase">Adobe</button>
+        <button class="minibtn" data-exp="procreate">Procreate</button><button class="minibtn" data-exp="png">PNG card</button></div></div>
+    </div></div>`;
+  const cv=$("palCanvas"), img=await loadImageURL(url);
+  const scale=Math.min(1,1000/Math.max(img.width,img.height));
+  cv.width=Math.max(1,Math.round(img.width*scale)); cv.height=Math.max(1,Math.round(img.height*scale));
+  cv.getContext("2d",{willReadFrequently:true}).drawImage(img,0,0,cv.width,cv.height);
+  cv.classList.toggle("value",palValue);
+  palExtractedCols=(await extractPalette(url))||[];
+  renderExtracted(); renderPicked(); setHarmonyFrom(palExtractedCols[0]||null); drawOverlay();
+}
+function renderExtracted(){ const el=$("palExtracted"); if(el) el.innerHTML=palExtractedCols.length?palExtractedCols.map(swatchHTML).join(""):`<span class="picked-empty">—</span>`; }
+function renderPicked(){ const el=$("palPickedChips"); if(!el) return;
+  el.innerHTML=palPicked.length?palPicked.map(c=>`<span class="pchip" data-hex="${c}"><i style="background:${c}"></i>${c}</span>`).join(""):`<span class="picked-empty">None yet.</span>`; }
+function addPicked(hex){ if(palPicked[0]!==hex){ palPicked.unshift(hex); if(palPicked.length>18) palPicked.pop(); } renderPicked(); setHarmonyFrom(hex); copyHex(hex); }
+function setHarmonyFrom(hex){ const el=$("palHarmony"), src=$("palHarmSrc"); if(!el) return;
+  if(!hex){ el.innerHTML=`<span class="picked-empty">—</span>`; if(src)src.textContent=""; return; }
+  if(src)src.textContent="· "+hex;
+  el.innerHTML=harmonyFrom(hex).map(o=>`<div class="sw" data-hex="${o.hex}" title="${o.l} ${o.hex}" style="background:${o.hex}"><span class="hx">${o.hex}</span></div>`).join(""); }
+function drawOverlay(){ const svg=$("palOverlaySvg"); if(!svg) return;
+  const L=(a,b,c,d)=>`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}"/>`; let s="";
+  if(palOverlay==="thirds")[33.33,66.66].forEach(p=>s+=L(p,0,p,100)+L(0,p,100,p));
+  else if(palOverlay==="golden")[38.2,61.8].forEach(p=>s+=L(p,0,p,100)+L(0,p,100,p));
+  else if(palOverlay==="diag")s+=L(0,0,100,100)+L(100,0,0,100)+L(0,0,100,50)+L(0,100,100,50)+L(100,0,0,50)+L(100,100,0,50);
+  svg.innerHTML=s; }
+function samplePixel(cv,e){ const r=cv.getBoundingClientRect();
+  const x=Math.floor((e.clientX-r.left)/r.width*cv.width), y=Math.floor((e.clientY-r.top)/r.height*cv.height);
+  const d=cv.getContext("2d",{willReadFrequently:true}).getImageData(Math.max(0,Math.min(cv.width-1,x)),Math.max(0,Math.min(cv.height-1,y)),1,1).data;
+  addPicked(rgbHex(d[0],d[1],d[2])); }
+async function renderPaletteHouse(){
+  $("palTitle").textContent="Studio palette"; $("palSub").textContent="Your colour language across the register";
+  const body=$("palBody");
+  if(!works.length){ body.innerHTML=`<div class="pal-empty"><h3>No works yet</h3><p>Add works with images and your studio palette will assemble here.</p></div>`; return; }
+  body.innerHTML=`<div class="picked-empty">Reading the colours of ${works.length} works…</div>`;
+  const all=[], byCol=new Map();
+  for(const w of works){ const cols=await paletteFor(w); if(!cols) continue; const k=w.series||"Unassigned";
+    if(!byCol.has(k))byCol.set(k,[]); cols.forEach(c=>{ all.push(c); byCol.get(k).push(c); }); }
+  houseCols=dedupeColorsList(all);
+  if(!houseCols.length){ body.innerHTML=`<div class="pal-empty"><h3>No colours yet</h3><p>Add images to your works to build the studio palette.</p></div>`; return; }
+  let html=`<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px">
+    <div class="ptool-h" style="margin:0">Signature palette · ${houseCols.length} colours</div>
+    <div class="pexports"><button class="minibtn" data-hexp="gpl">GIMP</button><button class="minibtn" data-hexp="ase">Adobe</button>
+      <button class="minibtn" data-hexp="procreate">Procreate</button><button class="minibtn" data-hexp="png">PNG card</button></div></div>
+    <div class="house-grid">${houseCols.map(swatchHTML).join("")}</div>`;
+  [...byCol.entries()].sort((a,b)=>a[0].localeCompare(b[0])).forEach(([k,cols])=>{ const dd=dedupeColorsList(cols);
+    html+=`<div class="house-h">${esc(k)}</div><div class="house-grid">${dd.map(swatchHTML).join("")}</div>`; });
+  body.innerHTML=html;
+}
+function exportColsWork(){ const out=[...palExtractedCols]; palPicked.forEach(c=>{ if(!out.includes(c)) out.push(c); }); return out; }
+function downloadBlob(fn,blob){ const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=fn; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),3000); }
+function exportGPL(name,cols){ let t=`GIMP Palette\nName: ${name} — Signal9\nColumns: ${Math.min(cols.length,8)||1}\n#\n`;
+  cols.forEach(c=>{ const [r,g,b]=hexToRgb(c); t+=`${String(r).padStart(3)} ${String(g).padStart(3)} ${String(b).padStart(3)}\t${c}\n`; });
+  downloadBlob(`${slug(name)||"palette"}.gpl`, new Blob([t],{type:"text/plain"})); }
+function exportASE(name,cols){
+  const bytes=[]; const u16=v=>bytes.push((v>>8)&255,v&255); const u32=v=>bytes.push((v>>>24)&255,(v>>>16)&255,(v>>>8)&255,v&255);
+  "ASEF".split("").forEach(c=>bytes.push(c.charCodeAt(0))); u16(1);u16(0); u32(cols.length);
+  cols.forEach(hex=>{ const body=[]; const bU16=v=>body.push((v>>8)&255,v&255);
+    const nm=hex; bU16(nm.length+1); for(const ch of nm)bU16(ch.charCodeAt(0)); bU16(0);
+    "RGB ".split("").forEach(c=>body.push(c.charCodeAt(0)));
+    const [r,g,b]=hexToRgb(hex); [r,g,b].forEach(v=>{ const bb=new ArrayBuffer(4); new DataView(bb).setFloat32(0,v/255,false); const u=new Uint8Array(bb); body.push(u[0],u[1],u[2],u[3]); });
+    bU16(2); u16(0x0001); u32(body.length); body.forEach(x=>bytes.push(x)); });
+  downloadBlob(`${slug(name)||"palette"}.ase`, new Blob([new Uint8Array(bytes)],{type:"application/octet-stream"})); }
+function crc32(bytes){ let c=~0>>>0; for(let i=0;i<bytes.length;i++){ c^=bytes[i]; for(let k=0;k<8;k++) c=(c>>>1)^(0xEDB88320 & -(c&1)); } return (~c)>>>0; }
+function exportProcreate(name,cols){
+  const sw=cols.slice(0,30).map(hex=>{ const [h,s,v]=hexToHsv(hex); return {hue:h,saturation:s,brightness:v,alpha:1,colorSpace:0}; });
+  const json=JSON.stringify([{name:name||"Signal9",swatches:sw,colorProfile:"sRGB IEC61966-2.1"}]);
+  const data=new TextEncoder().encode(json);
+  const u16=v=>[v&255,(v>>8)&255], u32=v=>[v&255,(v>>8)&255,(v>>16)&255,(v>>24)&255];
+  const nameBytes=[...("Swatches.json")].map(c=>c.charCodeAt(0)); const crc=crc32(data);
+  const local=Uint8Array.from([].concat([0x50,0x4b,3,4],u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(nameBytes.length),u16(0),nameBytes));
+  const cent=Uint8Array.from([].concat([0x50,0x4b,1,2],u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(nameBytes.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(0),nameBytes));
+  const off=local.length+data.length;
+  const end=Uint8Array.from([].concat([0x50,0x4b,5,6],u16(0),u16(0),u16(1),u16(1),u32(cent.length),u32(off),u16(0)));
+  const total=new Uint8Array(off+cent.length+end.length); let p=0;
+  [local,data,cent,end].forEach(a=>{ total.set(a,p); p+=a.length; });
+  downloadBlob(`${slug(name)||"palette"}.swatches`, new Blob([total],{type:"application/octet-stream"})); }
+function exportPNG(name,cols){
+  const per=Math.min(cols.length,6)||1, rows=Math.ceil(cols.length/per), cw=150,ch=170,pad=28,top=54;
+  const W=per*cw+pad*2, H=rows*ch+pad*2+top-20, c=document.createElement("canvas"); c.width=W;c.height=H; const x=c.getContext("2d");
+  x.fillStyle="#e7ddcd"; x.fillRect(0,0,W,H);
+  x.fillStyle="#2a231b"; x.font="italic 24px Georgia,serif"; x.fillText((name||"Signal9")+" — palette", pad, pad+22);
+  cols.forEach((hex,i)=>{ const cx=pad+(i%per)*cw, cy=pad+top+((i/per)|0)*ch;
+    x.fillStyle=hex; x.fillRect(cx,cy,cw-16,ch-40); x.strokeStyle="rgba(0,0,0,.12)"; x.strokeRect(cx+.5,cy+.5,cw-17,ch-41);
+    x.fillStyle="#2a231b"; x.font="13px monospace"; x.fillText(hex.toUpperCase(), cx, cy+ch-16); });
+  c.toBlob(b=>downloadBlob(`${slug(name)||"palette"}.png`, b), "image/png"); }
+function doExport(kind,cols,name){ if(!cols||!cols.length){ toast("No colours to export"); return; }
+  ({gpl:exportGPL,ase:exportASE,procreate:exportProcreate,png:exportPNG}[kind]||(()=>{}))(name,cols);
+  toast(`Exported ${cols.length} colours`); }
+
 /* ---------- Open the master file on disk (File System Access) ---------- */
 let mastersDir=null;
 const FSA_DIR = typeof window.showDirectoryPicker === "function";
@@ -2000,6 +2184,21 @@ function wire(){
   $("dashClose").onclick=closeDash;
   $("dashScrim").onclick=closeDash;
   $("btnNotify").onclick=notifyWaitlist;
+  // palette studio
+  $("btnPalette").onclick=openPaletteHouse;
+  $("btnPaletteWork").onclick=()=>openPaletteFor(editing);
+  $("palClose").onclick=closePalette;
+  $("palScrim").onclick=closePalette;
+  $("palHouse").onclick=openPaletteHouse;
+  $("palBody").addEventListener("click",e=>{
+    const cv=e.target.closest(".pcanvas"); if(cv){ samplePixel(cv,e); return; }
+    const sw=e.target.closest("[data-hex]"); if(sw){ copyHex(sw.dataset.hex); setHarmonyFrom(sw.dataset.hex); return; }
+    const ov=e.target.closest("[data-ov]"); if(ov){ palOverlay=ov.dataset.ov; $("palOverlaySeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b===ov)); drawOverlay(); return; }
+    const vl=e.target.closest("[data-val]"); if(vl){ palValue=vl.dataset.val==="1"; $("palValueSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b===vl)); const c=$("palCanvas"); if(c)c.classList.toggle("value",palValue); return; }
+    if(e.target.closest("#palClear")){ palPicked=[]; renderPicked(); return; }
+    const ex=e.target.closest("[data-exp]"); if(ex){ doExport(ex.dataset.exp, exportColsWork(), palWork?(palWork.title||"palette"):"palette"); return; }
+    const hx=e.target.closest("[data-hexp]"); if(hx){ doExport(hx.dataset.hexp, houseCols, "Signal9 studio palette"); return; }
+  });
   // market mode
   $("btnMarket").onclick=openMarket;
   $("marketClose").onclick=closeMarket;
@@ -2079,6 +2278,7 @@ function wire(){
     const ci=$("cardImage");ci.classList.remove("novel");
     ci.innerHTML=`<img src="${u}"><button class="repl" id="replBtn">Replace</button>`;
     ci.querySelector("#replBtn").onclick=ev=>{ev.stopPropagation();$("replaceInput").click();};
+    $("paletteAction").style.display="block";
     if(!$("fFile").value) $("fFile").value=f.name;
   };
   $("fileInput").onchange=e=>{stageFiles(e.target.files);e.target.value="";};
@@ -2113,6 +2313,7 @@ function wire(){
     else if(e.key==="Escape" && $("dash").classList.contains("show")) closeDash();
     else if(e.key==="Escape" && $("market").classList.contains("show")) closeMarket();
     else if(e.key==="Escape" && $("crm").classList.contains("show")) closeCRM();
+    else if(e.key==="Escape" && $("pal").classList.contains("show")) closePalette();
     else if(e.key==="Escape" && $("vault").classList.contains("show")) closeVault();
     if((e.ctrlKey||e.metaKey)&&e.key==="s"&&$("drawer").classList.contains("show")){e.preventDefault();saveWork();}
     if(e.key==="/"&&!/input|textarea|select/i.test(document.activeElement.tagName)){e.preventDefault();$("search").focus();}
@@ -2136,6 +2337,7 @@ function wire(){
         const ci=$("cardImage");ci.classList.remove("novel");
         ci.innerHTML=`<img src="${u}"><button class="repl" id="replBtn">Replace</button>`;
         ci.querySelector("#replBtn").onclick=ev=>{ev.stopPropagation();$("replaceInput").click();};
+    $("paletteAction").style.display="block";
         if(!$("fFile").value)$("fFile").value=f.name;
       });}
       return;
