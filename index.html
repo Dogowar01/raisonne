@@ -313,9 +313,9 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 }
 .plate:hover .mount::after{opacity:1}
 /* colour strip pulled from the image, sits along the top of each plate */
-.palette{display:none;height:7px;margin:-14px -14px 13px;overflow:hidden}
-.palette i{flex:1}
-.has-pal .palette{display:flex}
+.palette{display:none;height:7px;margin:-14px -14px 13px;overflow:hidden;
+  box-shadow:inset 0 -1px 2px rgba(0,0,0,.12)}   /* background set to a gradient of the image's palette */
+.has-pal .palette{display:block}
 /* mount, matte and border take on the image's dominant tone */
 .has-pal .mount{
   background:color-mix(in srgb, var(--dom) 9%, var(--paper));
@@ -870,12 +870,13 @@ async function applyPalettes(keys,map,railList){
       const cols=await paletteFor(w);
       if(!cols||!cols.length) continue;
       doms.push(cols[0]);
-      const strip=cols.map(c=>`<i style="background:${c}"></i>`).join("");
+      const stops = cols.length>1 ? cols.join(", ") : `${cols[0]}, ${cols[0]}`;
+      const grad = `linear-gradient(90deg, ${stops})`;
       const plate=document.querySelector(`.plate[data-id="${w.id}"]`);
       if(plate){
         plate.style.setProperty("--dom",cols[0]);
         plate.classList.add("has-pal");
-        const el=plate.querySelector(".palette"); if(el) el.innerHTML=strip;
+        const el=plate.querySelector(".palette"); if(el){ el.style.background=grad; el.innerHTML=""; }
       }
       const row=document.querySelector(`.lrow[data-id="${w.id}"]`);
       if(row){ row.style.setProperty("--dom",cols[0]); row.classList.add("has-pal"); }
