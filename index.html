@@ -39,9 +39,9 @@
   --brass:#b0803a;      /* warm brass / amber — highlights, the mark */
   --stamp:#8a3d30;      /* oxblood — sold out / retired only */
   --field:#faf4e8;
-  --glow-1:rgba(176,128,58,.14);   /* brass atmosphere */
-  --glow-2:rgba(63,91,86,.10);     /* verdigris atmosphere */
-  --glow-3:rgba(138,61,48,.06);    /* oxblood / dusty-rose */
+  --glow-1:rgba(176,128,58,.24);   /* brass atmosphere */
+  --glow-2:rgba(63,91,86,.16);     /* verdigris atmosphere */
+  --glow-3:rgba(138,61,48,.12);    /* oxblood / dusty-rose */
   --vignette:rgba(42,35,27,.07);
   --sheen:rgba(255,255,255,.20);   /* glass highlight on plates */
   --mat-hi:rgba(255,255,255,.6);   /* mount top-edge highlight */
@@ -72,9 +72,9 @@
   --brass:#d9a75a;      /* molten amber — the light source */
   --stamp:#cd8073;      /* warm oxblood */
   --field:#1a130d;
-  --glow-1:rgba(217,167,90,.22);   /* ember glow */
-  --glow-2:rgba(143,178,173,.13);
-  --glow-3:rgba(205,128,115,.11);  /* warm oxblood bloom */
+  --glow-1:rgba(217,167,90,.34);   /* ember glow */
+  --glow-2:rgba(143,178,173,.20);
+  --glow-3:rgba(205,128,115,.18);  /* warm oxblood bloom */
   --vignette:rgba(0,0,0,.55);
   --sheen:rgba(255,240,214,.15);
   --mat-hi:rgba(255,238,214,.07);
@@ -681,11 +681,16 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 #atmo{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 /* no gaussian blur — the radial gradients are already soft, and large
    blurred layers stall capture/compositing (see perf note on grain) */
-#atmo i{position:absolute;width:78vmax;height:78vmax;border-radius:50%;will-change:transform}
-#atmo i:nth-child(1){left:-26vmax;top:-30vmax;background:radial-gradient(circle, var(--glow-1) 0%, transparent 58%);animation:drift 70s ease-in-out infinite alternate}
-#atmo i:nth-child(2){right:-28vmax;top:-14vmax;background:radial-gradient(circle, var(--glow-3) 0%, transparent 56%);animation:drift 96s ease-in-out infinite alternate-reverse}
-#atmo i:nth-child(3){left:4vmax;bottom:-36vmax;background:radial-gradient(circle, var(--glow-2) 0%, transparent 58%);animation:drift 84s ease-in-out infinite alternate}
-@keyframes drift{to{transform:translate(10vmax,7vmax) scale(1.16)}}
+#atmo i{position:absolute;width:86vmax;height:86vmax;border-radius:50%;will-change:transform}
+#atmo i:nth-child(1){left:-28vmax;top:-32vmax;background:radial-gradient(circle, var(--glow-1) 0%, transparent 62%);animation:drift 44s ease-in-out infinite alternate}
+#atmo i:nth-child(2){right:-30vmax;top:-16vmax;background:radial-gradient(circle, var(--glow-3) 0%, transparent 60%);animation:drift 58s ease-in-out infinite alternate-reverse}
+#atmo i:nth-child(3){left:2vmax;bottom:-38vmax;background:radial-gradient(circle, var(--glow-2) 0%, transparent 62%);animation:drift 51s ease-in-out infinite alternate}
+/* the room inhales — a centre pool that slowly swells and settles */
+#atmo i:nth-child(4){left:50%;top:44%;width:70vmax;height:70vmax;margin:-35vmax 0 0 -35vmax;
+  background:radial-gradient(circle, var(--glow-1) 0%, transparent 55%);
+  animation:breathe 11s ease-in-out infinite}
+@keyframes drift{to{transform:translate(16vmax,10vmax) scale(1.28)}}
+@keyframes breathe{0%,100%{transform:scale(.9);opacity:.55}50%{transform:scale(1.12);opacity:1}}
 #dust{position:fixed;inset:0;z-index:5;pointer-events:none}
 
 /* the signal transmits — mark bars shimmer in sequence */
@@ -791,7 +796,7 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 </head>
 <body>
 <!-- breathing atmosphere — three drifting pools of gallery light -->
-<div id="atmo" aria-hidden="true"><i></i><i></i><i></i></div>
+<div id="atmo" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 <!-- dust motes in the spotlights -->
 <canvas id="dust" aria-hidden="true"></canvas>
 <div class="app">
@@ -2581,12 +2586,12 @@ function installDust(){
   const x=c.getContext("2d"); let W,H;
   const size=()=>{W=c.width=innerWidth;H=c.height=innerHeight;};
   size(); addEventListener("resize",size);
-  const N=Math.min(44,Math.max(24,Math.round(innerWidth/34)));
+  const N=Math.min(72,Math.max(40,Math.round(innerWidth/20)));
   const motes=[];
   for(let i=0;i<N;i++) motes.push({
     x:Math.random()*innerWidth, y:Math.random()*innerHeight,
-    r:.5+Math.random()*1.6, s:.05+Math.random()*.2,
-    ph:Math.random()*6.28, a:.04+Math.random()*.14
+    r:.6+Math.random()*2.2, s:.07+Math.random()*.3,
+    ph:Math.random()*6.28, a:.08+Math.random()*.24
   });
   (function tick(){
     requestAnimationFrame(tick);
