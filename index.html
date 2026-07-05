@@ -796,8 +796,9 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
       <span>Drop or click to add the print image</span>
     </div>
-    <div class="file-actions" id="paletteAction" style="display:none;margin:-12px 0 16px">
+    <div class="file-actions" id="paletteAction" style="display:none;margin:-12px 0 8px">
       <button type="button" class="minibtn" id="btnPaletteWork"><svg viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2a10 10 0 1 0 0 20c1 0 1.5-.8 1.5-1.7 0-1.1-.9-1.3-.9-2.3 0-.7.6-1.2 1.3-1.2H16a4 4 0 0 0 4-4c0-4.4-3.6-8-8-8z"/></svg>Colour tools</button>
+      <span class="hint" id="fitHint"></span>
     </div>
 
     <div class="field title-field">
@@ -878,6 +879,7 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 <input type="file" id="fileInput" accept="image/*" multiple hidden>
 <input type="file" id="replaceInput" accept="image/*" hidden>
 <input type="file" id="restoreInput" accept="application/json,.json" hidden>
+<input type="file" id="refInput" accept="image/*" hidden>
 <div class="toast" id="toast"></div>
 <datalist id="buyerList"></datalist>
 
@@ -939,6 +941,7 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
   <div class="dash-head">
     <h2 id="palTitle">Palette</h2><span class="dash-sub" id="palSub"></span>
     <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+      <button class="minibtn" id="palRef">Reference…</button>
       <button class="minibtn" id="palHouse">Studio palette</button>
       <button class="x" id="palClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
@@ -998,8 +1001,10 @@ function loadImage(file){
     img.src=u;
   });
 }
+let lastImportDims=null;
 async function downscale(file,max=1600,q=0.86){
   const img=await loadImage(file);
+  lastImportDims={w:img.width,h:img.height};   // original pixel dims, for print-fit
   let {width:w,height:h}=img;
   if(Math.max(w,h)>max){const s=max/Math.max(w,h);w=Math.round(w*s);h=Math.round(h*s);}
   const c=document.createElement("canvas");c.width=w;c.height=h;
@@ -1139,6 +1144,16 @@ function updateMargin(){
   const m=p-c, pct=p?Math.round(m/p*100):0;
   h.textContent=`${AUD(m)}${p?` · ${pct}%`:""}`;
   h.style.color = m>0 ? "var(--accent)" : "var(--stamp)";
+}
+/* print-fit — is the master big enough to print at A2 (300dpi ideal)? */
+function updateFit(){
+  const h=$("fitHint"); if(!h) return;
+  const dims=(stagedImage&&stagedImage.dims)||(editing&&editing.px);
+  if(!dims||!dims.w){ h.textContent=""; return; }
+  const dpi=Math.round(Math.min(Math.max(dims.w,dims.h)/23.39, Math.min(dims.w,dims.h)/16.54)); // A2 = 16.54×23.39in
+  const mark=dpi>=240?"✓ ample for A2":(dpi>=150?"· ok for A2":"⚠ low-res for A2");
+  h.textContent=`${dims.w}×${dims.h}px · A2 ≈ ${dpi} dpi ${mark}`;
+  h.style.color=dpi>=240?"var(--accent)":(dpi>=150?"var(--ink-faint)":"var(--stamp)");
 }
 
 /* ============================================================
@@ -1344,6 +1359,7 @@ function openDrawer(work){
       ci.querySelector("#replBtn").onclick=e=>{e.stopPropagation();$("replaceInput").click();};}
     else{ci.classList.add("novel");ci.innerHTML=`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Drop or click to add the print image</span>`;}
     $("paletteAction").style.display = u ? "block" : "none";
+    updateFit();
   };
   if(work){ hydrateUrl(work.id).then(setImg); } else setImg(null);
   $("btnDelete").style.display = work ? "" : "none";
@@ -1439,6 +1455,7 @@ async function saveWork(){
   // image
   if(stagedImage){
     await put("images",{id:editing.id,blob:stagedImage.blob});
+    if(stagedImage.dims) editing.px=stagedImage.dims;
     if(urls.has(editing.id)){URL.revokeObjectURL(urls.get(editing.id));urls.delete(editing.id);}
     URL.revokeObjectURL(stagedImage.url);stagedImage=null;
   }
@@ -1468,7 +1485,7 @@ async function stageFiles(files){
   if(!imgs.length) return;
   queue=[];
   for(const f of imgs){
-    try{const blob=await downscale(f);queue.push({blob,name:f.name});}
+    try{const blob=await downscale(f);queue.push({blob,name:f.name,dims:lastImportDims});}
     catch(e){console.warn("skip",f.name,e);}
   }
   nextQueued();
@@ -1482,11 +1499,11 @@ function nextQueued(){
   $("fTitle").value=base.replace(/\b\w/g,c=>c.toUpperCase());
   $("fFile").value=item.name;
   const u=URL.createObjectURL(item.blob);
-  stagedImage={blob:item.blob,url:u};
+  stagedImage={blob:item.blob,url:u,dims:item.dims};
   const ci=$("cardImage");ci.classList.remove("novel");
   ci.innerHTML=`<img src="${u}"><button class="repl" id="replBtn">Replace</button>`;
   ci.querySelector("#replBtn").onclick=e=>{e.stopPropagation();$("replaceInput").click();};
-  $("paletteAction").style.display="block";
+  $("paletteAction").style.display="block";updateFit();
   if(queue.length) toast(`${queue.length+1} images queued — fill in each and save`);
 }
 
@@ -1975,12 +1992,17 @@ function updateMarketTally(){
 }
 
 /* ---------- Palette studio — colour tools for making art ---------- */
-let palWork=null, palPicked=[], palExtractedCols=[], houseCols=[], palOverlay="none", palValue=false;
+let palWork=null, palPicked=[], palExtractedCols=[], houseCols=[], palOverlay="none", palView="colour";
+let palSourceURL=null, palTitleText="", palImg=null, palSampleCtx=null, palRefRevoke=null;
 function rgbHex(r,g,b){return "#"+[r,g,b].map(x=>Math.max(0,Math.min(255,x|0)).toString(16).padStart(2,"0")).join("");}
 function hexToHsv(hex){ let [r,g,b]=hexToRgb(hex).map(x=>x/255); const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn; let h=0;
   if(d){ if(mx===r)h=((g-b)/d)%6; else if(mx===g)h=(b-r)/d+2; else h=(r-g)/d+4; h/=6; if(h<0)h+=1; } return [h, mx?d/mx:0, mx]; }
-function swatchHTML(c){ return `<div class="sw" data-hex="${c}" title="${c}" style="background:${c}"><span class="hx">${c}</span></div>`; }
-function copyHex(hex){ try{ navigator.clipboard&&navigator.clipboard.writeText(hex); }catch(e){} toast(`Copied ${hex}`); }
+/* nearest traditional artist pigment name, for mixing/ordering */
+const PIGMENTS=[["Titanium White","#f4f2ec"],["Naples Yellow","#f3e2a9"],["Yellow Ochre","#c9a227"],["Raw Sienna","#b1713b"],["Burnt Sienna","#8a3b26"],["Raw Umber","#6b4f2a"],["Burnt Umber","#4b3621"],["Cadmium Yellow","#ffd21a"],["Cadmium Orange","#ed7014"],["Cadmium Red","#d21e2b"],["Alizarin Crimson","#7a1f2b"],["Venetian Red","#a13d2d"],["Indian Red","#8b3a3a"],["Rose Madder","#c96a86"],["Magenta","#a5305f"],["Dioxazine Purple","#3b2144"],["Ultramarine","#29397a"],["Cobalt Blue","#1f5aa6"],["Cerulean","#2a7db5"],["Prussian Blue","#1c3b46"],["Phthalo Blue","#10344a"],["Payne's Grey","#2b3a44"],["Viridian","#1a6b57"],["Phthalo Green","#124b3b"],["Sap Green","#5a7a2a"],["Olive","#6b6a33"],["Terre Verte","#6f7d5e"],["Ivory Black","#241f1c"],["Warm Grey","#8a8175"],["Cool Grey","#7d8489"],["Davy's Grey","#565a55"],["Flesh Ochre","#d9a06b"],["Buff Titanium","#d8cbb0"],["Turquoise","#2fae9e"],["Teal","#2e6f7e"],["Sky","#8fb9c4"],["Sand","#e9d9b0"],["Charcoal","#2a231b"]];
+function colorName(hex){ const [r,g,b]=hexToRgb(hex); let best="",bd=1e9;
+  for(const [n,h] of PIGMENTS){ const [R,G,B]=hexToRgb(h); const d=(r-R)**2+(g-G)**2+(b-B)**2; if(d<bd){bd=d;best=n;} } return best; }
+function swatchHTML(c){ return `<div class="sw" data-hex="${c}" title="${c} · ${colorName(c)}" style="background:${c}"><span class="hx">${c}</span></div>`; }
+function copyHex(hex){ try{ navigator.clipboard&&navigator.clipboard.writeText(hex); }catch(e){} toast(`Copied ${hex} · ${colorName(hex)}`); }
 function harmonyFrom(hex){
   const [r,g,b]=hexToRgb(hex); const hsl=rgbToHsl(r,g,b); const h=hsl[0];
   const at=dh=>hslToHex(((h+dh/360)%1+1)%1, Math.max(.22,Math.min(.72,hsl[1])), Math.max(.3,Math.min(.62,hsl[2])));
@@ -1990,25 +2012,37 @@ function dedupeColorsList(list){
   const out=[]; list.forEach(c=>{ if(!out.some(o=>colorClose(o,c))) out.push(c); });
   return out.sort((a,b)=>{ const A=rgbToHsl(...hexToRgb(a)), B=rgbToHsl(...hexToRgb(b)); return A[0]-B[0]||A[2]-B[2]; });
 }
-function openPaletteFor(work){ palWork=work; palPicked=[]; palValue=false; palOverlay="none"; $("palScrim").classList.add("show"); $("pal").classList.add("show"); renderPaletteWork(); }
-function openPaletteHouse(){ palWork=null; $("palScrim").classList.add("show"); $("pal").classList.add("show"); renderPaletteHouse(); }
+function showPal(){ $("palScrim").classList.add("show"); $("pal").classList.add("show"); }
+async function openPaletteFor(work){
+  palWork=work; palPicked=[]; palView="colour"; palOverlay="none";
+  palSourceURL = stagedImage ? stagedImage.url : (work? await hydrateUrl(work.id):null);
+  palTitleText = work?(work.title||"Untitled"):"This work";
+  showPal(); renderPaletteWork();
+}
+function loadReference(file){
+  if(!file) return;
+  if(palRefRevoke){ URL.revokeObjectURL(palRefRevoke); }
+  palRefRevoke=URL.createObjectURL(file);
+  palWork=null; palPicked=[]; palView="colour"; palOverlay="none";
+  palSourceURL=palRefRevoke; palTitleText="Reference · "+file.name;
+  showPal(); renderPaletteWork();
+}
+function openPaletteHouse(){ palWork=null; showPal(); renderPaletteHouse(); }
 function closePalette(){ $("palScrim").classList.remove("show"); $("pal").classList.remove("show"); }
 async function renderPaletteWork(){
-  const w=palWork;
-  const url = stagedImage ? stagedImage.url : (w? await hydrateUrl(w.id):null);
-  $("palTitle").textContent="Palette"; $("palSub").textContent = w?(w.title||"Untitled"):"This work";
+  $("palTitle").textContent="Palette"; $("palSub").textContent=palTitleText;
   const body=$("palBody");
-  if(!url){ body.innerHTML=`<div class="pal-empty"><h3>No image yet</h3><p>Add the print image to this work, then open colour tools.</p></div>`; return; }
+  if(!palSourceURL){ body.innerHTML=`<div class="pal-empty"><h3>No image yet</h3><p>Add the print image to this work (or load a reference), then open colour tools.</p></div>`; return; }
   body.innerHTML=`<div class="pal-work">
     <div>
       <div class="pstage"><canvas class="pcanvas" id="palCanvas"></canvas><svg class="poverlay" id="palOverlaySvg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg></div>
       <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
         <div><div class="ptool-h">Overlays</div><div class="pseg" id="palOverlaySeg">
-          <button data-ov="none" class="on">None</button><button data-ov="thirds">Thirds</button><button data-ov="golden">Golden</button><button data-ov="diag">Diagonals</button></div></div>
-        <div><div class="ptool-h">View</div><div class="pseg" id="palValueSeg">
-          <button data-val="0" class="on">Colour</button><button data-val="1">Value</button></div></div>
+          <button data-ov="none" class="on">None</button><button data-ov="thirds">Thirds</button><button data-ov="golden">Golden</button><button data-ov="diag">Diagonals</button><button data-ov="crop">A-crop</button></div></div>
+        <div><div class="ptool-h">View</div><div class="pseg" id="palViewSeg">
+          <button data-view="colour" class="on">Colour</button><button data-view="value">Value</button><button data-view="duotone">Duotone</button></div></div>
       </div>
-      <div class="picked-empty" style="margin-top:11px">Tap anywhere on the print to sample a colour — it copies to your clipboard.</div>
+      <div class="picked-empty" style="margin-top:11px">Tap anywhere on the print to sample a colour — it copies to your clipboard. Duotone maps it to your first two picked colours.</div>
     </div>
     <div class="ptools">
       <div><div class="ptool-h">In this print</div><div class="swrow" id="palExtracted"></div></div>
@@ -2017,33 +2051,73 @@ async function renderPaletteWork(){
       <div><div class="ptool-h">Export palette</div><div class="pexports">
         <button class="minibtn" data-exp="gpl">GIMP</button><button class="minibtn" data-exp="ase">Adobe</button>
         <button class="minibtn" data-exp="procreate">Procreate</button><button class="minibtn" data-exp="png">PNG card</button></div></div>
+      <div><div class="ptool-h">Studies</div><div class="pexports">
+        <button class="minibtn" data-study="notan">Notan PNG</button><button class="minibtn" data-study="mockup">Wall mockup</button></div></div>
     </div></div>`;
-  const cv=$("palCanvas"), img=await loadImageURL(url);
-  const scale=Math.min(1,1000/Math.max(img.width,img.height));
-  cv.width=Math.max(1,Math.round(img.width*scale)); cv.height=Math.max(1,Math.round(img.height*scale));
-  cv.getContext("2d",{willReadFrequently:true}).drawImage(img,0,0,cv.width,cv.height);
-  cv.classList.toggle("value",palValue);
-  palExtractedCols=(await extractPalette(url))||[];
+  const cv=$("palCanvas");
+  palImg=await loadImageURL(palSourceURL);
+  const scale=Math.min(1,1000/Math.max(palImg.width,palImg.height));
+  cv.width=Math.max(1,Math.round(palImg.width*scale)); cv.height=Math.max(1,Math.round(palImg.height*scale));
+  const sc=document.createElement("canvas"); sc.width=cv.width; sc.height=cv.height;
+  palSampleCtx=sc.getContext("2d",{willReadFrequently:true}); palSampleCtx.drawImage(palImg,0,0,cv.width,cv.height);
+  paintCanvas();
+  palExtractedCols=(await extractPalette(palSourceURL))||[];
   renderExtracted(); renderPicked(); setHarmonyFrom(palExtractedCols[0]||null); drawOverlay();
 }
+function paintCanvas(){ const cv=$("palCanvas"); if(!cv||!palImg) return;
+  const ctx=cv.getContext("2d",{willReadFrequently:true}); ctx.drawImage(palImg,0,0,cv.width,cv.height);
+  cv.classList.toggle("value", palView==="value");
+  if(palView==="duotone") applyDuotone(ctx,cv); }
+function duotoneEnds(){
+  const cols = palPicked.length>=2 ? [palPicked[0],palPicked[1]] : (palExtractedCols.length>=2 ? [palExtractedCols[0],palExtractedCols[palExtractedCols.length-1]] : null);
+  if(!cols) return null;
+  const lum=h=>{const [r,g,b]=hexToRgb(h);return .299*r+.587*g+.114*b;};
+  return [...cols].sort((a,b)=>lum(a)-lum(b));
+}
+function applyDuotone(ctx,cv){
+  const ends=duotoneEnds(); if(!ends){ toast("Pick two colours for a duotone"); return; }
+  const [s,h]=ends.map(hexToRgb); const d=ctx.getImageData(0,0,cv.width,cv.height), p=d.data;
+  for(let i=0;i<p.length;i+=4){ const L=(0.299*p[i]+0.587*p[i+1]+0.114*p[i+2])/255;
+    p[i]=s[0]+(h[0]-s[0])*L; p[i+1]=s[1]+(h[1]-s[1])*L; p[i+2]=s[2]+(h[2]-s[2])*L; }
+  ctx.putImageData(d,0,0); }
 function renderExtracted(){ const el=$("palExtracted"); if(el) el.innerHTML=palExtractedCols.length?palExtractedCols.map(swatchHTML).join(""):`<span class="picked-empty">—</span>`; }
 function renderPicked(){ const el=$("palPickedChips"); if(!el) return;
-  el.innerHTML=palPicked.length?palPicked.map(c=>`<span class="pchip" data-hex="${c}"><i style="background:${c}"></i>${c}</span>`).join(""):`<span class="picked-empty">None yet.</span>`; }
-function addPicked(hex){ if(palPicked[0]!==hex){ palPicked.unshift(hex); if(palPicked.length>18) palPicked.pop(); } renderPicked(); setHarmonyFrom(hex); copyHex(hex); }
+  el.innerHTML=palPicked.length?palPicked.map(c=>`<span class="pchip" data-hex="${c}" title="${colorName(c)}"><i style="background:${c}"></i>${c}</span>`).join(""):`<span class="picked-empty">None yet.</span>`; }
+function addPicked(hex){ if(palPicked[0]!==hex){ palPicked.unshift(hex); if(palPicked.length>18) palPicked.pop(); } renderPicked(); setHarmonyFrom(hex); if(palView==="duotone") paintCanvas(); copyHex(hex); }
 function setHarmonyFrom(hex){ const el=$("palHarmony"), src=$("palHarmSrc"); if(!el) return;
   if(!hex){ el.innerHTML=`<span class="picked-empty">—</span>`; if(src)src.textContent=""; return; }
-  if(src)src.textContent="· "+hex;
-  el.innerHTML=harmonyFrom(hex).map(o=>`<div class="sw" data-hex="${o.hex}" title="${o.l} ${o.hex}" style="background:${o.hex}"><span class="hx">${o.hex}</span></div>`).join(""); }
-function drawOverlay(){ const svg=$("palOverlaySvg"); if(!svg) return;
+  if(src)src.textContent="· "+colorName(hex);
+  el.innerHTML=harmonyFrom(hex).map(o=>`<div class="sw" data-hex="${o.hex}" title="${o.l} · ${colorName(o.hex)}" style="background:${o.hex}"><span class="hx">${o.hex}</span></div>`).join(""); }
+function drawOverlay(){ const svg=$("palOverlaySvg"), cv=$("palCanvas"); if(!svg) return;
   const L=(a,b,c,d)=>`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}"/>`; let s="";
   if(palOverlay==="thirds")[33.33,66.66].forEach(p=>s+=L(p,0,p,100)+L(0,p,100,p));
   else if(palOverlay==="golden")[38.2,61.8].forEach(p=>s+=L(p,0,p,100)+L(0,p,100,p));
   else if(palOverlay==="diag")s+=L(0,0,100,100)+L(100,0,0,100)+L(0,0,100,50)+L(0,100,100,50)+L(100,0,0,50)+L(100,100,0,50);
+  else if(palOverlay==="crop" && cv){ const Ri=cv.width/cv.height, Rt=Ri>=1?Math.SQRT2:1/Math.SQRT2;
+    let wp=100,hp=100; if(Rt>Ri) hp=(Ri/Rt)*100; else wp=(Rt/Ri)*100;
+    const x=(100-wp)/2, y=(100-hp)/2; s+=`<rect x="${x}" y="${y}" width="${wp}" height="${hp}"/>`; }
   svg.innerHTML=s; }
-function samplePixel(cv,e){ const r=cv.getBoundingClientRect();
+function samplePixel(cv,e){ if(!palSampleCtx) return; const r=cv.getBoundingClientRect();
   const x=Math.floor((e.clientX-r.left)/r.width*cv.width), y=Math.floor((e.clientY-r.top)/r.height*cv.height);
-  const d=cv.getContext("2d",{willReadFrequently:true}).getImageData(Math.max(0,Math.min(cv.width-1,x)),Math.max(0,Math.min(cv.height-1,y)),1,1).data;
+  const d=palSampleCtx.getImageData(Math.max(0,Math.min(cv.width-1,x)),Math.max(0,Math.min(cv.height-1,y)),1,1).data;
   addPicked(rgbHex(d[0],d[1],d[2])); }
+function exportNotan(){ if(!palImg) return;
+  const s=Math.min(1,1400/Math.max(palImg.width,palImg.height)), W=Math.round(palImg.width*s), H=Math.round(palImg.height*s);
+  const c=document.createElement("canvas"); c.width=W;c.height=H; const x=c.getContext("2d",{willReadFrequently:true});
+  x.drawImage(palImg,0,0,W,H); const d=x.getImageData(0,0,W,H), p=d.data, tones=[27,135,240];
+  for(let i=0;i<p.length;i+=4){ const L=(0.299*p[i]+0.587*p[i+1]+0.114*p[i+2])/255, t=L<0.34?0:(L<0.67?1:2); p[i]=p[i+1]=p[i+2]=tones[t]; }
+  x.putImageData(d,0,0); c.toBlob(b=>downloadBlob(`${slug(palTitleText)||"notan"}-notan.png`,b),"image/png"); toast("Notan study exported"); }
+function exportMockup(){ if(!palImg) return;
+  const W=1400,H=1000, c=document.createElement("canvas"); c.width=W;c.height=H; const x=c.getContext("2d");
+  const g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,"#ece6da"); g.addColorStop(.68,"#ddd5c6"); g.addColorStop(.68,"#cbc3b2"); g.addColorStop(1,"#bfb6a4");
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  const ar=palImg.width/palImg.height; let pw=W*0.4, ph=pw/ar; const maxH=H*0.5; if(ph>maxH){ ph=maxH; pw=ph*ar; }
+  const cx=(W-pw)/2, cy=H*0.36-ph/2+40, mat=Math.max(20,pw*0.07), fr=15;
+  x.save(); x.shadowColor="rgba(0,0,0,.3)"; x.shadowBlur=44; x.shadowOffsetY=26;
+  x.fillStyle="#2a231b"; x.fillRect(cx-mat-fr,cy-mat-fr,pw+2*(mat+fr),ph+2*(mat+fr)); x.restore();
+  x.fillStyle="#f3ece0"; x.fillRect(cx-mat,cy-mat,pw+2*mat,ph+2*mat);
+  x.drawImage(palImg,cx,cy,pw,ph); x.strokeStyle="rgba(0,0,0,.15)"; x.strokeRect(cx-.5,cy-.5,pw+1,ph+1);
+  c.toBlob(b=>downloadBlob(`${slug(palTitleText)||"mockup"}-mockup.png`,b),"image/png"); toast("Wall mockup exported"); }
 async function renderPaletteHouse(){
   $("palTitle").textContent="Studio palette"; $("palSub").textContent="Your colour language across the register";
   const body=$("palBody");
@@ -2190,13 +2264,16 @@ function wire(){
   $("palClose").onclick=closePalette;
   $("palScrim").onclick=closePalette;
   $("palHouse").onclick=openPaletteHouse;
+  $("palRef").onclick=()=>$("refInput").click();
+  $("refInput").onchange=e=>{ if(e.target.files[0]) loadReference(e.target.files[0]); e.target.value=""; };
   $("palBody").addEventListener("click",e=>{
     const cv=e.target.closest(".pcanvas"); if(cv){ samplePixel(cv,e); return; }
     const sw=e.target.closest("[data-hex]"); if(sw){ copyHex(sw.dataset.hex); setHarmonyFrom(sw.dataset.hex); return; }
     const ov=e.target.closest("[data-ov]"); if(ov){ palOverlay=ov.dataset.ov; $("palOverlaySeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b===ov)); drawOverlay(); return; }
-    const vl=e.target.closest("[data-val]"); if(vl){ palValue=vl.dataset.val==="1"; $("palValueSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b===vl)); const c=$("palCanvas"); if(c)c.classList.toggle("value",palValue); return; }
-    if(e.target.closest("#palClear")){ palPicked=[]; renderPicked(); return; }
-    const ex=e.target.closest("[data-exp]"); if(ex){ doExport(ex.dataset.exp, exportColsWork(), palWork?(palWork.title||"palette"):"palette"); return; }
+    const vw=e.target.closest("[data-view]"); if(vw){ palView=vw.dataset.view; $("palViewSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b===vw)); paintCanvas(); return; }
+    if(e.target.closest("#palClear")){ palPicked=[]; renderPicked(); if(palView==="duotone")paintCanvas(); return; }
+    const st=e.target.closest("[data-study]"); if(st){ st.dataset.study==="notan"?exportNotan():exportMockup(); return; }
+    const ex=e.target.closest("[data-exp]"); if(ex){ doExport(ex.dataset.exp, exportColsWork(), palTitleText||"palette"); return; }
     const hx=e.target.closest("[data-hexp]"); if(hx){ doExport(hx.dataset.hexp, houseCols, "Signal9 studio palette"); return; }
   });
   // market mode
@@ -2274,11 +2351,11 @@ function wire(){
     const f=e.target.files[0];e.target.value="";if(!f)return;
     const blob=await downscale(f);
     if(stagedImage)URL.revokeObjectURL(stagedImage.url);
-    const u=URL.createObjectURL(blob);stagedImage={blob,url:u};
+    const u=URL.createObjectURL(blob);stagedImage={blob,url:u,dims:lastImportDims};
     const ci=$("cardImage");ci.classList.remove("novel");
     ci.innerHTML=`<img src="${u}"><button class="repl" id="replBtn">Replace</button>`;
     ci.querySelector("#replBtn").onclick=ev=>{ev.stopPropagation();$("replaceInput").click();};
-    $("paletteAction").style.display="block";
+    $("paletteAction").style.display="block";updateFit();
     if(!$("fFile").value) $("fFile").value=f.name;
   };
   $("fileInput").onchange=e=>{stageFiles(e.target.files);e.target.value="";};
@@ -2333,11 +2410,11 @@ function wire(){
       const f=[...files].find(x=>x.type.startsWith("image/"));
       if(f){downscale(f).then(blob=>{
         if(stagedImage)URL.revokeObjectURL(stagedImage.url);
-        const u=URL.createObjectURL(blob);stagedImage={blob,url:u};
+        const u=URL.createObjectURL(blob);stagedImage={blob,url:u,dims:lastImportDims};
         const ci=$("cardImage");ci.classList.remove("novel");
         ci.innerHTML=`<img src="${u}"><button class="repl" id="replBtn">Replace</button>`;
         ci.querySelector("#replBtn").onclick=ev=>{ev.stopPropagation();$("replaceInput").click();};
-    $("paletteAction").style.display="block";
+    $("paletteAction").style.display="block";updateFit();
         if(!$("fFile").value)$("fFile").value=f.name;
       });}
       return;

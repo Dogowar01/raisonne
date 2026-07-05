@@ -89,6 +89,16 @@ Open **Palette** in the toolbar (studio-wide) or **Colour tools** on a work's ca
   or a **PNG swatch card** — a direct bridge from a finished edition back into your next canvas.
 - **Studio palette** — aggregates the dominant colours across every work into your Signal9
   signature palette (overall and per collection), exportable as one file.
+- **Reference image** — *Reference…* loads any inspiration image (not catalogued) into the same
+  tools to pull a palette for planning a new piece.
+- **Value & Duotone views** — grayscale value study, or a **duotone** that maps the print's tones
+  to your first two picked colours (test a colour treatment before you paint it).
+- **A-crop guide** — overlays the √2 A-series crop so you can see how a master fits A2/A3.
+- **Pigment names** — every swatch names its nearest traditional pigment (Burnt Sienna, Payne's
+  Grey…) for mixing/ordering.
+- **Studies export** — a 3-value **notan** PNG and a framed **wall-mockup** PNG from any print.
+- **Print-fit** — on a work's card, the image's original pixels show an **A2 dpi estimate** with a
+  warning if it's too low-res to print large.
 
 ## Visual identity
 
