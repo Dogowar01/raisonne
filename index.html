@@ -176,6 +176,34 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 /* editions-only controls hide outside the Editions tab */
 body.tab-apps .tab-editions,body.tab-writing .tab-editions{display:none!important}
 
+/* ---------- Per-tab colour schemes ----------
+   Editions keeps the base verdigris/brass/oxblood palette (:root above).
+   Apps and Writing recolour --accent, the room's atmosphere glows, and
+   the masthead gradient's far end — everything hung off those variables
+   (buttons, focus rings, meters, status tags, the vault/help/palette
+   strips, even text selection) shifts with them. The brass mark and
+   wordmark stay constant — that's the studio's signature, not a tab's. */
+body.tab-apps{
+  --accent:#2f5480; --accent-lift:#254468;              /* circuit-blue — building things */
+  --glow-1:rgba(47,84,128,.20); --glow-2:rgba(58,122,140,.14); --glow-3:rgba(90,70,150,.10);
+  --bar-grad:linear-gradient(105deg, #d3ab5f 0%, #e4d3b0 30%, var(--board) 60%, #7fa0c2 100%);
+}
+[data-theme="dark"] body.tab-apps{
+  --accent:#7ea6d9; --accent-lift:#9dbfe8;
+  --glow-1:rgba(126,166,217,.30); --glow-2:rgba(110,196,209,.17); --glow-3:rgba(150,120,220,.15);
+  --bar-grad:linear-gradient(105deg, #463218 0%, #241c14 30%, #17110e 64%, #1c2e42 100%);
+}
+body.tab-writing{
+  --accent:#5c3454; --accent-lift:#48283f;               /* literary plum — writing things */
+  --glow-1:rgba(92,52,84,.18); --glow-2:rgba(150,80,90,.12); --glow-3:rgba(70,40,70,.10);
+  --bar-grad:linear-gradient(105deg, #d3ab5f 0%, #e4d3b0 30%, var(--board) 60%, #a5749a 100%);
+}
+[data-theme="dark"] body.tab-writing{
+  --accent:#c48ab0; --accent-lift:#d9a8c8;
+  --glow-1:rgba(196,138,176,.28); --glow-2:rgba(205,130,140,.17); --glow-3:rgba(140,90,150,.15);
+  --bar-grad:linear-gradient(105deg, #463218 0%, #241c14 30%, #17110e 64%, #2a1a26 100%);
+}
+
 /* ---------- Toolbar ---------- */
 .toolbar{
   position:relative;z-index:15;

@@ -9,8 +9,10 @@ offline-first app, no backend: **Editions** (fine-art print editions, the full s
 
 A tab bar in the masthead (**Editions · Apps · Writing**) switches between them. All three share
 the same gallery-at-night shell — atmosphere, dark/light theme, fonts, the fractured mark,
-per-image palette glow, and exhibition view — but each has its own IndexedDB store and its own
-tailored fields:
+per-image palette glow, and exhibition view — but each has its own IndexedDB store, its own
+tailored fields, and **its own accent colour and room atmosphere**: Editions keeps the archival
+verdigris/brass; Apps runs on a cool circuit-blue; Writing on a literary plum. The brass mark and
+wordmark stay constant across all three — that's the studio's signature, not a section's.
 
 - **Editions** — the full studio suite: sales register, collectors, market mode, studio dashboard,
   palette studio, collector catalogue, certificates. Unchanged, and still the primary register.
