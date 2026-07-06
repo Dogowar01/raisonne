@@ -164,6 +164,18 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 }
 .tally b{color:var(--ink);font-weight:500}
 
+/* ---------- Tab bar — Editions / Apps / Writing ---------- */
+.tabbar{display:flex;gap:2px;margin:0 18px}
+.tabbar button{
+  background:none;border:1px solid transparent;border-radius:3px;
+  padding:6px 13px;font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;
+  color:var(--ink-soft);
+}
+.tabbar button:hover{color:var(--ink);border-color:var(--rule)}
+.tabbar button.on{color:var(--ink);background:color-mix(in srgb, var(--accent) 14%, transparent);border-color:color-mix(in srgb, var(--accent) 40%, transparent)}
+/* editions-only controls hide outside the Editions tab */
+body.tab-apps .tab-editions,body.tab-writing .tab-editions{display:none!important}
+
 /* ---------- Toolbar ---------- */
 .toolbar{
   position:relative;z-index:15;
@@ -371,6 +383,11 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 .status.active,.status.editioned{color:var(--accent)}
 .status.soldout,.status.retired{color:var(--stamp)}
 .status.concept,.status.proofing{color:var(--ink-faint)}
+/* Apps statuses */
+.status.building,.status.drafting{color:var(--accent)}
+.status.shipped,.status.published{color:var(--brass)}
+.status.idea,.status.editing,.status.submitted{color:var(--ink-faint)}
+.status.archived{color:var(--stamp)}
 /* sold-out stamp overlay */
 .stamp{
   position:absolute;top:10px;right:10px;
@@ -402,6 +419,27 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
   display:grid;grid-template-columns:26px 52px 1fr 150px 140px 96px 62px;
   gap:14px;padding:0 4px 7px;border-bottom:1px solid var(--ink);
   font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);
+}
+
+/* generic register row — Apps & Writing list views */
+.grow{
+  display:grid;grid-template-columns:52px 1fr 150px 120px 110px;
+  align-items:center;gap:14px;padding:9px 4px;border-bottom:1px solid var(--rule-soft);cursor:pointer;
+}
+.grow:hover{background:var(--paper-2)}
+.grow .thumb{width:52px;height:52px;background:var(--paper-2);border:1px solid var(--rule-soft);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.grow .thumb img{max-width:100%;max-height:100%;object-fit:contain}
+.grow .title{font-family:var(--serif);font-style:italic;font-size:20px;letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.grow .col{font-family:var(--mono);font-size:11px;color:var(--ink-soft);letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.glist-head{
+  display:grid;grid-template-columns:52px 1fr 150px 120px 110px;
+  gap:14px;padding:0 4px 7px;border-bottom:1px solid var(--ink);
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);
+}
+/* pitch / synopsis line on Apps & Writing plates */
+.plate-caption .pitch{
+  font-family:var(--prose);font-size:12px;color:var(--ink-soft);margin:2px 0 6px;line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
 }
 
 /* empty state */
@@ -680,6 +718,8 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
   .cat{padding:8px 18px 120px}
   .lrow,.list-head{grid-template-columns:26px 44px 1fr 96px 62px;}
   .lrow .col.tier,.lrow .col.year,.list-head .h-tier,.list-head .h-year{display:none}
+  .grow,.glist-head{grid-template-columns:44px 1fr 90px;}
+  .grow .col:nth-of-type(3),.glist-head span:nth-of-type(4){display:none}
 }
 
 /* ============================================================
@@ -884,7 +924,12 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
         <rect x="30"   y="16"  width="2" height="8"/>
       </svg>
       <h1>Raisonné</h1>
-      <span class="sub">Signal9 Studio · Register of Editions</span>
+      <span class="sub">Signal9 Studio · Register</span>
+    </div>
+    <div class="tabbar" id="tabbar">
+      <button class="on" data-tab="editions">Editions</button>
+      <button data-tab="apps">Apps</button>
+      <button data-tab="writing">Writing</button>
     </div>
     <div class="tally" id="tally"></div>
   </div>
@@ -895,7 +940,7 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <input id="search" placeholder="Search title, series, description…" autocomplete="off">
     </div>
-    <select class="tsel" id="filterTheme"><option value="">All themes</option></select>
+    <select class="tsel tab-editions" id="filterTheme"><option value="">All themes</option></select>
     <select class="tsel" id="filterStatus">
       <option value="">All statuses</option>
       <option value="Concept">Concept</option>
@@ -910,26 +955,26 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
       <button id="viewGrid" class="on" title="Plate view"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
       <button id="viewList" title="Ledger view"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
     </div>
-    <button class="tbtn" id="btnPrint" title="Print catalogue"><svg viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print</button>
-    <button class="tbtn" id="btnMarket" title="Market mode — sell at the stall"><svg viewBox="0 0 24 24"><path d="M3 9l1-5h16l1 5"/><path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M9 13h6"/></svg>Market</button>
-    <button class="tbtn" id="btnCollectors" title="Collectors — your buyers & waitlists"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M4 20c0-3 2.5-5 5-5s5 2 5 5"/><path d="M16 5a3 3 0 0 1 0 6"/><path d="M17 15c2 .5 3.5 2.3 3.5 5"/></svg>Collectors</button>
-    <button class="tbtn" id="btnPalette" title="Palette studio — colour tools & swatches"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c1.4 0 2-1 2-2 0-1.3-1-1.5-1-2.5 0-.8.7-1.5 1.5-1.5H18a3 3 0 0 0 3-3c0-3.9-4-6.5-9-6.5z"/><circle cx="7.5" cy="11.5" r="1"/><circle cx="12" cy="8" r="1"/><circle cx="16.5" cy="11" r="1"/></svg>Palette</button>
-    <button class="tbtn" id="btnDash" title="Studio dashboard — sales, revenue, margins"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>Studio</button>
-    <button class="tbtn" id="btnCatalogue" title="Generate a collector catalogue (public HTML)"><svg viewBox="0 0 24 24"><path d="M4 4h9a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H4z"/><path d="M20 4h-4a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H20z"/></svg>Catalogue</button>
+    <button class="tbtn tab-editions" id="btnPrint" title="Print catalogue"><svg viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print</button>
+    <button class="tbtn tab-editions" id="btnMarket" title="Market mode — sell at the stall"><svg viewBox="0 0 24 24"><path d="M3 9l1-5h16l1 5"/><path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M9 13h6"/></svg>Market</button>
+    <button class="tbtn tab-editions" id="btnCollectors" title="Collectors — your buyers & waitlists"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M4 20c0-3 2.5-5 5-5s5 2 5 5"/><path d="M16 5a3 3 0 0 1 0 6"/><path d="M17 15c2 .5 3.5 2.3 3.5 5"/></svg>Collectors</button>
+    <button class="tbtn tab-editions" id="btnPalette" title="Palette studio — colour tools & swatches"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c1.4 0 2-1 2-2 0-1.3-1-1.5-1-2.5 0-.8.7-1.5 1.5-1.5H18a3 3 0 0 0 3-3c0-3.9-4-6.5-9-6.5z"/><circle cx="7.5" cy="11.5" r="1"/><circle cx="12" cy="8" r="1"/><circle cx="16.5" cy="11" r="1"/></svg>Palette</button>
+    <button class="tbtn tab-editions" id="btnDash" title="Studio dashboard — sales, revenue, margins"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>Studio</button>
+    <button class="tbtn tab-editions" id="btnCatalogue" title="Generate a collector catalogue (public HTML)"><svg viewBox="0 0 24 24"><path d="M4 4h9a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H4z"/><path d="M20 4h-4a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H20z"/></svg>Catalogue</button>
     <button class="tbtn" id="btnVault" title="Data vault — storage health & backup"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>Vault</button>
     <button class="tbtn" id="btnExport" title="Back up everything (metadata + images)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Back up</button>
-    <button class="tbtn" id="btnCsv" title="Export the register as CSV"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/></svg>CSV</button>
+    <button class="tbtn" id="btnCsv" title="Export this register as CSV"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/></svg>CSV</button>
     <button class="tbtn" id="btnImport" title="Restore from a backup"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 8l5-5 5 5"/><path d="M12 3v12"/></svg>Restore</button>
     <button class="tbtn" id="btnHelp" title="Help & shortcuts (?)">?</button>
     <button class="tbtn" id="btnTheme" title="Studio light">☾</button>
     <button class="tbtn" id="btnInstall" title="Install as an app" hidden><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>Install</button>
-    <button class="tbtn primary" id="btnAdd"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add work</button>
+    <button class="tbtn primary" id="btnAdd"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span id="btnAddLabel">Add work</span></button>
   </div>
 
   <!-- Body -->
   <div class="body">
     <nav class="rail" id="rail">
-      <div class="rail-h">Series</div>
+      <div class="rail-h" id="railH">Series</div>
       <div id="railList"></div>
     </nav>
     <main class="cat" id="cat"></main>
@@ -1044,6 +1089,77 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
   </div>
 </aside>
 
+<!-- Apps drawer -->
+<aside class="drawer" id="appDrawer">
+  <div class="dstrip" id="appDstrip" aria-hidden="true"></div>
+  <div class="drawer-head">
+    <span class="acc" id="appAccNo">New project</span>
+    <button class="x" id="appDrawerClose"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="drawer-body">
+    <div class="card-image novel" id="appImage">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      <span>Drop or click to add a screenshot (optional)</span>
+    </div>
+    <div class="field title-field"><label>Name</label><input id="aName" placeholder="Untitled project"></div>
+    <div class="field"><label>Pitch — one line</label><input id="aPitch" placeholder="What is it, in a sentence?"></div>
+    <div class="row2">
+      <div class="field"><label>Status</label>
+        <select id="aStatus"><option>Idea</option><option>Building</option><option>Shipped</option><option>Archived</option></select>
+      </div>
+      <div class="field"><label>Stack</label><input id="aStack" placeholder="e.g. Vite, React, Supabase"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Repo</label><input id="aRepo" placeholder="https://github.com/…"></div>
+      <div class="field"><label>Live URL</label><input id="aLive" placeholder="https://…"></div>
+    </div>
+    <div class="field"><label>Notes — updates, next steps</label><textarea id="aNotes" placeholder="Dated log of what changed, what's next…" rows="6"></textarea></div>
+  </div>
+  <div class="drawer-foot">
+    <button class="del" id="appBtnDelete"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6"/></svg>Remove</button>
+    <button class="save" id="appBtnSave">Save project</button>
+  </div>
+</aside>
+
+<!-- Writing drawer -->
+<aside class="drawer" id="writingDrawer">
+  <div class="dstrip" id="wDstrip" aria-hidden="true"></div>
+  <div class="drawer-head">
+    <span class="acc" id="wAccNo">New page</span>
+    <button class="x" id="wDrawerClose"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="drawer-body">
+    <div class="card-image novel" id="wImage">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      <span>Drop or click to add a cover (optional)</span>
+    </div>
+    <div class="field title-field"><label>Title</label><input id="wTitle" placeholder="Untitled"></div>
+    <div class="row2">
+      <div class="field"><label>Type</label>
+        <select id="wType"><option>Novel</option><option>Story</option><option>Poem</option><option>Essay</option><option>Script</option><option>Other</option></select>
+      </div>
+      <div class="field"><label>Status</label>
+        <select id="wStatus"><option>Idea</option><option>Drafting</option><option>Editing</option><option>Submitted</option><option>Published</option></select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Word count</label><input id="wWords" type="number" step="1" placeholder="0"></div>
+      <div class="field"><label>Word goal</label><input id="wGoal" type="number" step="1" placeholder="—"></div>
+    </div>
+    <div class="meter" id="wMeter"><i id="wMeterFill"></i></div>
+    <div class="hint" id="wMeterTxt"></div>
+    <div class="field" style="margin-top:16px"><label>Synopsis</label><textarea id="wSynopsis" placeholder="What it's about…"></textarea></div>
+    <div class="field"><label>Notes</label><textarea id="wNotes" placeholder="Where it lives, submission log, ideas…"></textarea></div>
+  </div>
+  <div class="drawer-foot">
+    <button class="del" id="wBtnDelete"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6"/></svg>Remove</button>
+    <button class="save" id="wBtnSave">Save page</button>
+  </div>
+</aside>
+
+<input type="file" id="appImageInput" accept="image/*" hidden>
+<input type="file" id="wImageInput" accept="image/*" hidden>
+
 <input type="file" id="fileInput" accept="image/*" multiple hidden>
 <input type="file" id="replaceInput" accept="image/*" hidden>
 <input type="file" id="restoreInput" accept="application/json,.json" hidden>
@@ -1139,16 +1255,20 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
     <button class="x" id="helpClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
   </div>
   <div class="dash-body">
+    <div class="dash-h">The three registers</div>
+    <div class="hrow"><b>Editions</b><span>The print-editions ledger — series, sales, collectors, market, palette studio, all of it.</span></div>
+    <div class="hrow"><b>Apps</b><span>A shelf of what you're building — status, stack, links, notes. Group by status, grid or list.</span></div>
+    <div class="hrow"><b>Writing</b><span>A lightweight index of pages — type, status, a word-count meter, synopsis.</span></div>
     <div class="dash-h">The rooms</div>
-    <div class="hrow"><b>Exhibition</b><span>Click any artwork to view it large — ← → walks the gallery, Esc leaves.</span></div>
-    <div class="hrow"><b>Accession card</b><span>Click a plate's caption (or a ledger row) to edit — sales register, tiers, master file, waitlist.</span></div>
-    <div class="hrow"><b>Market</b><span>Stall mode: tap a work to sell its next number; day total and undo up top.</span></div>
-    <div class="hrow"><b>Collectors</b><span>Your buyers — contacts, purchase history, waitlists. “Sync buyers” pulls names from sales.</span></div>
-    <div class="hrow"><b>Studio</b><span>Revenue, profit after costs, sell-through by collection, best sellers.</span></div>
+    <div class="hrow"><b>Exhibition</b><span>Click any artwork to view it large — ← → walks the gallery, Esc leaves. Works in all three registers.</span></div>
+    <div class="hrow"><b>The card</b><span>Click a plate's caption (or a row) to edit it — full details live here.</span></div>
+    <div class="hrow"><b>Market</b><span>Editions only — stall mode: tap a work to sell its next number; day total and undo up top.</span></div>
+    <div class="hrow"><b>Collectors</b><span>Editions only — your buyers, contacts, purchase history, waitlists.</span></div>
+    <div class="hrow"><b>Studio</b><span>Editions only — revenue, profit after costs, sell-through, best sellers.</span></div>
     <div class="hrow"><b>Palette</b><span>Colour tools: eyedropper, harmonies, duotone, notan, wall mockup, exports to Procreate/Adobe/GIMP.</span></div>
-    <div class="hrow"><b>Catalogue</b><span>A public collector catalogue — no sold counts, no private notes.</span></div>
-    <div class="hrow"><b>Vault</b><span>Storage health. Back up bundles everything into one JSON; CSV for spreadsheets.</span></div>
-    <div class="hrow"><b>Import</b><span>Drag print images anywhere onto the window — titles are read from filenames.</span></div>
+    <div class="hrow"><b>Catalogue</b><span>Editions only — a public collector catalogue, no sold counts, no private notes.</span></div>
+    <div class="hrow"><b>Vault</b><span>Storage health. Back up bundles every register into one JSON; CSV exports the active one.</span></div>
+    <div class="hrow"><b>Import</b><span>On Editions, drag print images anywhere onto the window — titles are read from filenames.</span></div>
     <div class="dash-h">Keys</div>
     <div class="hrow"><b>/</b><span>Focus search</span></div>
     <div class="hrow"><b>Ctrl / Cmd + S</b><span>Save the open accession card</span></div>
@@ -1163,7 +1283,7 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 /* ============================================================
    Storage — IndexedDB (works metadata + preview blobs + settings)
    ============================================================ */
-const DB_NAME="raisonne", DB_VER=2;
+const DB_NAME="raisonne", DB_VER=3;
 let _db=null;
 function db(){
   return new Promise((res,rej)=>{
@@ -1175,6 +1295,8 @@ function db(){
       if(!d.objectStoreNames.contains("images")) d.createObjectStore("images",{keyPath:"id"});
       if(!d.objectStoreNames.contains("meta")) d.createObjectStore("meta",{keyPath:"key"});
       if(!d.objectStoreNames.contains("collectors")) d.createObjectStore("collectors",{keyPath:"id"});
+      if(!d.objectStoreNames.contains("apps")) d.createObjectStore("apps",{keyPath:"id"});
+      if(!d.objectStoreNames.contains("writings")) d.createObjectStore("writings",{keyPath:"id"});
     };
     r.onsuccess=e=>{_db=e.target.result;res(_db)};
     r.onerror=e=>rej(e.target.error);
@@ -1197,6 +1319,10 @@ let queue=[];                // remaining staged images from a multi-drop
 let view="grid";
 let firstPaint=true;         // animate the catalogue in only on first load
 let collectors=[];           // CRM records
+let activeTab="editions";    // "editions" | "apps" | "writing"
+let apps=[], writings=[];
+let editingApp=null, stagedAppImage=null;
+let editingWriting=null, stagedWritingImage=null;
 const $=id=>document.getElementById(id);
 
 /* ============================================================
@@ -1292,7 +1418,8 @@ async function paletteFor(w){
   wPalette.set(w.id,{sig,cols});
   return cols;
 }
-async function applyPalettes(keys,map,railList){
+async function applyPalettes(keys,map,railList,prefix){
+  prefix=prefix||"s-";
   for(const k of keys){
     if(!map.has(k)) continue;
     const doms=[];
@@ -1308,13 +1435,13 @@ async function applyPalettes(keys,map,railList){
         plate.classList.add("has-pal");
         const el=plate.querySelector(".palette"); if(el){ el.style.background=grad; el.innerHTML=""; }
       }
-      const row=document.querySelector(`.lrow[data-id="${w.id}"]`);
+      const row=document.querySelector(`.lrow[data-id="${w.id}"], .grow[data-id="${w.id}"]`);
       if(row){ row.style.setProperty("--dom",cols[0]); row.classList.add("has-pal"); }
     }
     if(k!=="Unassigned" && doms.length){
       const setCols=[]; for(const hx of doms){ if(!setCols.some(o=>colorClose(o,hx))) setCols.push(hx); }
       const top=setCols.slice(0,5);
-      const sec=document.getElementById("s-"+slug(k));
+      const sec=document.getElementById(prefix+slug(k));
       if(sec){
         sec.classList.add("has-set");
         sec.style.setProperty("--set",top[0]);
@@ -1406,7 +1533,14 @@ function grouped(){
 }
 const collapsed=new Set();
 
+/* dispatcher — each tab owns its own render + tally + rail */
 function render(){
+  if(activeTab==="apps") return renderApps();
+  if(activeTab==="writing") return renderWriting();
+  return renderEditions();
+}
+
+function renderEditions(){
   const cat=$("cat");
   const {map,keys}=grouped();
   const total=works.length;
@@ -1522,6 +1656,212 @@ function listRowHTML(w,list,i){
       <button data-mv="up" data-id="${w.id}" ${i===0?"disabled style=opacity:.3":""} title="Move up"><svg viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg></button>
       <button data-mv="down" data-id="${w.id}" ${i===list.length-1?"disabled style=opacity:.3":""} title="Move down"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
     </span>
+  </div>`;
+}
+
+/* ============================================================
+   Apps tab — a lightweight project shelf
+   ============================================================ */
+const APP_STATUS_ORDER=["Building","Idea","Shipped","Archived"];
+function activeAppFilters(){ return {q:$("search").value.trim().toLowerCase(), status:$("filterStatus").value}; }
+function passesApp(a,f){
+  if(f.status && (a.status||"Idea")!==f.status) return false;
+  if(f.q){ const hay=[a.name,a.pitch,a.stack,a.notes].join(" ").toLowerCase(); if(!hay.includes(f.q)) return false; }
+  return true;
+}
+function groupedApps(){
+  const f=activeAppFilters(); const map=new Map();
+  apps.filter(a=>passesApp(a,f)).forEach(a=>{
+    const key=a.status||"Idea";
+    if(!map.has(key)) map.set(key,[]);
+    map.get(key).push(a);
+  });
+  const keys=[...map.keys()].sort((x,y)=>APP_STATUS_ORDER.indexOf(x)-APP_STATUS_ORDER.indexOf(y));
+  keys.forEach(k=>map.get(k).sort((a,b)=>(b.updated||0)-(a.updated||0)));
+  return {map,keys};
+}
+function renderApps(){
+  const cat=$("cat");
+  const {map,keys}=groupedApps();
+  const total=apps.length;
+  const shown=[...map.values()].reduce((n,a)=>n+a.length,0);
+  const shipped=apps.filter(a=>a.status==="Shipped").length;
+  $("tally").innerHTML = total ? `<b>${total}</b> project${total!==1?"s":""} · <b>${shipped}</b> shipped` : "";
+  $("railH").textContent="Status";
+  const railList=$("railList");
+  railList.innerHTML = keys.length
+    ? keys.map(k=>`<a href="#as-${slug(k)}" data-series="${esc(k)}"><span class="dot"></span><span class="name">${esc(k)}</span><span class="n">${map.get(k).length}</span></a>`).join("")
+    : `<a style="color:var(--ink-faint);pointer-events:none">—</a>`;
+  if(total===0){
+    cat.innerHTML=`<div class="empty-state">
+      <svg class="mark mark-lg" viewBox="0 0 34 24" aria-hidden="true"><rect x="0" y="14" width="2" height="10"/><rect x="3.8" y="9" width="2" height="15"/><rect x="9.1" y="4" width="2" height="2.9"/><rect x="7.5" y="8.3" width="2" height="15.7"/><rect x="12.9" y="0" width="2" height="8.2"/><rect x="11.3" y="9.6" width="2" height="14.4"/><rect x="16.6" y="6" width="2" height="3.5"/><rect x="15" y="10.9" width="2" height="13.1"/><rect x="18.8" y="11" width="2" height="13"/><rect x="24.1" y="2" width="2" height="10"/><rect x="22.5" y="13.4" width="2" height="10.6"/><rect x="27.9" y="8" width="2" height="5.3"/><rect x="26.3" y="14.7" width="2" height="9.3"/><rect x="31.6" y="13" width="2" height="1.6"/><rect x="30" y="16" width="2" height="8"/></svg>
+      <h3>No projects yet</h3>
+      <p>Add the apps you're building — status, stack, links and notes, all in one shelf.</p>
+      <div class="k">Press “Add project”</div>
+    </div>`;
+    return;
+  }
+  if(shown===0){ cat.innerHTML=`<div class="empty-state"><h3>Nothing matches</h3><p>No projects fit the current search or filter.</p></div>`; return; }
+  let html="";
+  keys.forEach((k,ki)=>{
+    const list=map.get(k), isColl=collapsed.has("apps:"+k);
+    html+=`<section class="series ${isColl?"collapsed":""}" id="as-${slug(k)}" data-series="${esc(k)}">
+      <div class="series-head" data-toggle="apps:${esc(k)}">
+        <span class="gnum" aria-hidden="true">${String(ki+1).padStart(2,"0")}</span>
+        <span class="set-pal" aria-hidden="true"></span>
+        <h2>${esc(k)}</h2>
+        <span class="meta">${list.length} project${list.length!==1?"s":""}</span>
+        <span class="chev"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
+      </div>`;
+    if(view==="grid") html+=`<div class="plates">`+list.map(appPlateHTML).join("")+`</div>`;
+    else html+=`<div class="list"><div class="glist-head"><span></span><span>Name</span><span>Stack</span><span>Status</span><span>Links</span></div>`
+      +list.map(appRowHTML).join("")+`</div>`;
+    html+=`</section>`;
+  });
+  cat.innerHTML=html;
+  if(firstPaint){ cat.classList.add("first"); firstPaint=false; setTimeout(()=>cat.classList.remove("first"),1400); }
+  apps.forEach(a=>hydrateUrl(a.id).then(u=>{
+    if(!u) return;
+    cat.querySelectorAll(`[data-img="${a.id}"]`).forEach(el=>{
+      if(el.querySelector("img")) return;
+      const im=document.createElement("img"); im.src=u; im.alt=a.name||"";
+      el.classList.remove("empty"); el.innerHTML=""; el.appendChild(im);
+    });
+  }));
+  applyPalettes(keys,map,railList,"as-");
+}
+function appPlateHTML(a){
+  const u=urlFor(a.id);
+  const stack=(a.stack||"").split(",").map(s=>s.trim()).filter(Boolean).slice(0,3);
+  const dt=a.updated?new Date(a.updated).toLocaleDateString("en-AU",{month:"short",year:"numeric"}):"";
+  return `<div class="plate" data-id="${a.id}">
+    <div class="mount">
+      <div class="palette" aria-hidden="true"></div>
+      <div class="frame ${u?"":"empty"}" data-img="${a.id}">${u?`<img src="${u}" alt="${esc(a.name||"")}">`:"no screenshot"}</div>
+      <div class="plate-caption">
+        <div class="no"><span>—</span><span>${esc(dt)}</span></div>
+        <div class="t">${esc(a.name||"Untitled")}</div>
+        ${a.pitch?`<div class="pitch">${esc(a.pitch)}</div>`:""}
+        <div class="d">
+          ${stack.map((b,i)=>`${i?'<span class="dot">·</span>':""}<span>${esc(b)}</span>`).join("")}
+          <span class="status ${statusClass(a.status||"Idea")}">${esc(a.status||"Idea")}</span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function appRowHTML(a){
+  const u=urlFor(a.id);
+  const stack=(a.stack||"").split(",").map(s=>s.trim()).filter(Boolean).slice(0,2).join(", ");
+  const links=[a.repo?"repo":null,a.live?"live":null].filter(Boolean).join(" · ")||"—";
+  return `<div class="grow" data-id="${a.id}">
+    <span class="thumb" data-img="${a.id}">${u?`<img src="${u}">`:""}</span>
+    <span class="title">${esc(a.name||"Untitled")}</span>
+    <span class="col">${esc(stack||"—")}</span>
+    <span class="col"><span class="status ${statusClass(a.status||"Idea")}">${esc(a.status||"Idea")}</span></span>
+    <span class="col">${esc(links)}</span>
+  </div>`;
+}
+
+/* ============================================================
+   Writing tab — a lightweight manuscript index
+   ============================================================ */
+const WRITING_STATUS_ORDER=["Drafting","Idea","Editing","Submitted","Published"];
+function activeWritingFilters(){ return {q:$("search").value.trim().toLowerCase(), status:$("filterStatus").value}; }
+function passesWriting(w,f){
+  if(f.status && (w.status||"Idea")!==f.status) return false;
+  if(f.q){ const hay=[w.title,w.wtype,w.synopsis,w.notes].join(" ").toLowerCase(); if(!hay.includes(f.q)) return false; }
+  return true;
+}
+function groupedWriting(){
+  const f=activeWritingFilters(); const map=new Map();
+  writings.filter(w=>passesWriting(w,f)).forEach(w=>{
+    const key=w.status||"Idea";
+    if(!map.has(key)) map.set(key,[]);
+    map.get(key).push(w);
+  });
+  const keys=[...map.keys()].sort((x,y)=>WRITING_STATUS_ORDER.indexOf(x)-WRITING_STATUS_ORDER.indexOf(y));
+  keys.forEach(k=>map.get(k).sort((a,b)=>(b.updated||0)-(a.updated||0)));
+  return {map,keys};
+}
+function renderWriting(){
+  const cat=$("cat");
+  const {map,keys}=groupedWriting();
+  const total=writings.length;
+  const shown=[...map.values()].reduce((n,a)=>n+a.length,0);
+  const totalWords=writings.reduce((s,w)=>s+(w.words||0),0);
+  $("tally").innerHTML = total ? `<b>${total}</b> page${total!==1?"s":""} · <b>${totalWords.toLocaleString()}</b> words` : "";
+  $("railH").textContent="Status";
+  const railList=$("railList");
+  railList.innerHTML = keys.length
+    ? keys.map(k=>`<a href="#ws-${slug(k)}" data-series="${esc(k)}"><span class="dot"></span><span class="name">${esc(k)}</span><span class="n">${map.get(k).length}</span></a>`).join("")
+    : `<a style="color:var(--ink-faint);pointer-events:none">—</a>`;
+  if(total===0){
+    cat.innerHTML=`<div class="empty-state">
+      <svg class="mark mark-lg" viewBox="0 0 34 24" aria-hidden="true"><rect x="0" y="14" width="2" height="10"/><rect x="3.8" y="9" width="2" height="15"/><rect x="9.1" y="4" width="2" height="2.9"/><rect x="7.5" y="8.3" width="2" height="15.7"/><rect x="12.9" y="0" width="2" height="8.2"/><rect x="11.3" y="9.6" width="2" height="14.4"/><rect x="16.6" y="6" width="2" height="3.5"/><rect x="15" y="10.9" width="2" height="13.1"/><rect x="18.8" y="11" width="2" height="13"/><rect x="24.1" y="2" width="2" height="10"/><rect x="22.5" y="13.4" width="2" height="10.6"/><rect x="27.9" y="8" width="2" height="5.3"/><rect x="26.3" y="14.7" width="2" height="9.3"/><rect x="31.6" y="13" width="2" height="1.6"/><rect x="30" y="16" width="2" height="8"/></svg>
+      <h3>An empty page</h3>
+      <p>Add what you're writing — type, status, a word count against a goal, a synopsis.</p>
+      <div class="k">Press “Add page”</div>
+    </div>`;
+    return;
+  }
+  if(shown===0){ cat.innerHTML=`<div class="empty-state"><h3>Nothing matches</h3><p>No pages fit the current search or filter.</p></div>`; return; }
+  let html="";
+  keys.forEach((k,ki)=>{
+    const list=map.get(k), isColl=collapsed.has("writing:"+k);
+    html+=`<section class="series ${isColl?"collapsed":""}" id="ws-${slug(k)}" data-series="${esc(k)}">
+      <div class="series-head" data-toggle="writing:${esc(k)}">
+        <span class="gnum" aria-hidden="true">${String(ki+1).padStart(2,"0")}</span>
+        <span class="set-pal" aria-hidden="true"></span>
+        <h2>${esc(k)}</h2>
+        <span class="meta">${list.length} page${list.length!==1?"s":""}</span>
+        <span class="chev"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
+      </div>`;
+    if(view==="grid") html+=`<div class="plates">`+list.map(writingPlateHTML).join("")+`</div>`;
+    else html+=`<div class="list"><div class="glist-head"><span></span><span>Title</span><span>Type</span><span>Status</span><span>Words</span></div>`
+      +list.map(writingRowHTML).join("")+`</div>`;
+    html+=`</section>`;
+  });
+  cat.innerHTML=html;
+  if(firstPaint){ cat.classList.add("first"); firstPaint=false; setTimeout(()=>cat.classList.remove("first"),1400); }
+  writings.forEach(w=>hydrateUrl(w.id).then(u=>{
+    if(!u) return;
+    cat.querySelectorAll(`[data-img="${w.id}"]`).forEach(el=>{
+      if(el.querySelector("img")) return;
+      const im=document.createElement("img"); im.src=u; im.alt=w.title||"";
+      el.classList.remove("empty"); el.innerHTML=""; el.appendChild(im);
+    });
+  }));
+  applyPalettes(keys,map,railList,"ws-");
+}
+function writingPlateHTML(w){
+  const u=urlFor(w.id);
+  const wordsTxt = w.goal ? `${(w.words||0).toLocaleString()} / ${w.goal.toLocaleString()}` : (w.words?`${w.words.toLocaleString()} words`:"");
+  return `<div class="plate" data-id="${w.id}">
+    <div class="mount">
+      <div class="palette" aria-hidden="true"></div>
+      <div class="frame ${u?"":"empty"}" data-img="${w.id}">${u?`<img src="${u}" alt="${esc(w.title||"")}">`:"no cover"}</div>
+      <div class="plate-caption">
+        <div class="no"><span>${esc(w.wtype||"")}</span><span>${esc(w.year||"")}</span></div>
+        <div class="t">${esc(w.title||"Untitled")}</div>
+        ${w.synopsis?`<div class="pitch">${esc(w.synopsis)}</div>`:""}
+        <div class="d">
+          ${wordsTxt?`<span>${esc(wordsTxt)}</span><span class="dot">·</span>`:""}
+          <span class="status ${statusClass(w.status||"Idea")}">${esc(w.status||"Idea")}</span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function writingRowHTML(w){
+  const u=urlFor(w.id);
+  const wordsTxt = w.goal ? `${(w.words||0).toLocaleString()}/${w.goal.toLocaleString()}` : (w.words?w.words.toLocaleString():"—");
+  return `<div class="grow" data-id="${w.id}">
+    <span class="thumb" data-img="${w.id}">${u?`<img src="${u}">`:""}</span>
+    <span class="title">${esc(w.title||"Untitled")}</span>
+    <span class="col">${esc(w.wtype||"—")}</span>
+    <span class="col"><span class="status ${statusClass(w.status||"Idea")}">${esc(w.status||"Idea")}</span></span>
+    <span class="col">${esc(wordsTxt)}</span>
   </div>`;
 }
 
@@ -1698,12 +2038,12 @@ async function saveWork(){
 /* Soft delete — the work leaves the room but the record survives an
    8-second grace period (and a mid-grace app close: the DB row is only
    removed when the grace expires, so worst case it reappears on boot). */
-let pendingDelete=null;
+let pendingDelete=null;   // {store, item} — generic across works/apps/writings
 async function finalizeDelete(){
   if(!pendingDelete) return;
-  const w=pendingDelete.work; pendingDelete=null;
-  await del("works",w.id); await del("images",w.id);
-  if(urls.has(w.id)){URL.revokeObjectURL(urls.get(w.id));urls.delete(w.id);}
+  const {store,item}=pendingDelete; pendingDelete=null;
+  await del(store,item.id); await del("images",item.id);
+  if(urls.has(item.id)){URL.revokeObjectURL(urls.get(item.id));urls.delete(item.id);}
 }
 function toastUndo(msg,onUndo){
   const t=$("toast");
@@ -1719,13 +2059,13 @@ async function removeWork(){
   const w=works.find(x=>x.id===editing.id);
   if(!w){ closeDrawer(); return; }
   works=works.filter(x=>x.id!==w.id);
-  pendingDelete={work:w};
+  pendingDelete={store:"works",item:w};
   closeDrawer(); render(); await bumpChanges();
   toastUndo(`Removed “${w.title||"Untitled"}”`, ()=>{
-    if(!pendingDelete||pendingDelete.work.id!==w.id) return;
+    if(!pendingDelete||pendingDelete.item.id!==w.id) return;
     pendingDelete=null; works.push(w); render(); toast("Restored to the register");
   });
-  setTimeout(()=>{ if(pendingDelete&&pendingDelete.work.id===w.id) finalizeDelete(); },8300);
+  setTimeout(()=>{ if(pendingDelete&&pendingDelete.item.id===w.id) finalizeDelete(); },8300);
 }
 
 /* staged multi-drop */
@@ -1762,13 +2102,19 @@ function nextQueued(){
 function blobToDataURL(blob){return new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(blob);});}
 async function dataURLToBlob(u){return (await fetch(u)).blob();}
 
-async function buildBackupJSON(){
-  const out={app:"Raisonné",kind:"signal9-register",version:3,exportedAt:new Date().toISOString(),works:[],collectors:collectors};
-  for(const w of works){
-    const rec=await get("images",w.id);
+async function bundleWithImages(list){
+  const out=[];
+  for(const item of list){
+    const rec=await get("images",item.id);
     const image=rec&&rec.blob?await blobToDataURL(rec.blob):null;
-    out.works.push({...w,_image:image});
+    out.push({...item,_image:image});
   }
+  return out;
+}
+async function buildBackupJSON(){
+  const out={app:"Raisonné",kind:"signal9-register",version:4,exportedAt:new Date().toISOString(),
+    works:await bundleWithImages(works), collectors:collectors,
+    apps:await bundleWithImages(apps), writings:await bundleWithImages(writings)};
   return JSON.stringify(out,null,2);
 }
 let backupFileHandle=null;
@@ -1790,30 +2136,45 @@ async function exportBackup(){
       const ws=await backupFileHandle.createWritable();
       await ws.write(json); await ws.close();
       await resetNudge();
-      toast(`Backed up ${works.length} works → ${backupFileHandle.name}`);
+      toast(`Backed up ${backupSummary()} → ${backupFileHandle.name}`);
       return;
     }catch(e){ if(e&&e.name==="AbortError") return; /* fall through to plain download */ }
   }
   const blob=new Blob([json],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);
   await resetNudge();
-  toast(`Backed up ${works.length} works`);
+  toast(`Backed up ${backupSummary()}`);
+}
+function backupSummary(){
+  const bits=[[works.length,"works"],[apps.length,"projects"],[writings.length,"pages"]].filter(([n])=>n>0);
+  return bits.length ? bits.map(([n,l])=>`${n} ${l}`).join(", ") : "0 works";
+}
+async function restoreList(store,rawList){
+  if(!Array.isArray(rawList)) return 0;
+  const current = store==="works"?works:store==="apps"?apps:writings;
+  let n=0;
+  for(const raw of rawList){
+    const {_image,...item}=raw;
+    if(!item.id) item.id=uid();
+    if(_image){ try{ const blob=await dataURLToBlob(_image); await put("images",{id:item.id,blob}); }catch(e){} }
+    await put(store,item);
+    const idx=current.findIndex(x=>x.id===item.id);
+    if(idx>=0) current[idx]=item; else current.push(item);
+    n++;
+  }
+  return n;
 }
 async function importBackup(file){
   let data;
   try{data=JSON.parse(await file.text());}catch(e){toast("Not a valid backup file");return;}
-  if(!data.works||!Array.isArray(data.works)){toast("Unrecognised backup");return;}
-  if(works.length && !confirm(`Restore ${data.works.length} works? This merges into your current register.`)) return;
+  const hasAny=Array.isArray(data.works)||Array.isArray(data.apps)||Array.isArray(data.writings);
+  if(!hasAny){toast("Unrecognised backup");return;}
+  const incoming=(data.works?data.works.length:0)+(data.apps?data.apps.length:0)+(data.writings?data.writings.length:0);
+  if((works.length||apps.length||writings.length) && !confirm(`Restore ${incoming} record(s)? This merges into your current data.`)) return;
   let n=0;
-  for(const raw of data.works){
-    const {_image,...w}=raw;
-    if(!w.id) w.id=uid();
-    if(_image){try{const blob=await dataURLToBlob(_image);await put("images",{id:w.id,blob});}catch(e){}}
-    await put("works",w);
-    const idx=works.findIndex(x=>x.id===w.id);
-    if(idx>=0) works[idx]=w; else works.push(w);
-    n++;
-  }
+  n+=await restoreList("works",data.works);
+  n+=await restoreList("apps",data.apps);
+  n+=await restoreList("writings",data.writings);
   // collectors (CRM), if the backup carried them
   if(Array.isArray(data.collectors)){
     for(const c of data.collectors){ if(!c.id) c.id=uid(); await put("collectors",c);
@@ -1822,7 +2183,7 @@ async function importBackup(file){
   // clear cached urls so they re-hydrate
   urls.forEach(u=>URL.revokeObjectURL(u));urls.clear();
   await bumpChanges(); refreshBuyerList();
-  toast(`Restored ${n} works`);render();
+  toast(`Restored ${n} record${n!==1?"s":""}`);render();
 }
 
 /* ---------- "Back up me" nudge (changes since last backup) ---------- */
@@ -1858,13 +2219,13 @@ async function openVault(){
   let usage=0,quota=0;
   try{ if(navigator.storage&&navigator.storage.estimate){ const e=await navigator.storage.estimate(); usage=e.usage||0; quota=e.quota||0; } }catch(e){}
   const lb=await get("meta","lastBackup");
-  $("vaultBackup").textContent = (lb&&lb.val) ? new Date(lb.val).toLocaleDateString() + (pendingChanges?` · ${pendingChanges} since`:"") : (works.length?"Never — back up!":"—");
+  $("vaultBackup").textContent = (lb&&lb.val) ? new Date(lb.val).toLocaleDateString() + (pendingChanges?` · ${pendingChanges} since`:"") : ((works.length||apps.length||writings.length)?"Never — back up!":"—");
   $("vaultBackup").style.color = pendingChanges>0 ? "var(--stamp)" : "var(--ink)";
   $("vaultPersist").textContent = storagePersisted ? "Protected ✓" : "Not protected";
   $("vaultPersist").style.color = storagePersisted ? "var(--accent)" : "var(--stamp)";
   const pct = quota ? Math.min(100, usage/quota*100) : 0;
   $("vaultBar").style.width = pct.toFixed(1)+"%";
-  $("vaultUse").textContent = `${fmtMB(usage)} stored · ${works.length} work${works.length!==1?"s":""}`;
+  $("vaultUse").textContent = `${fmtMB(usage)} stored · ${backupSummary()}`;
   $("vaultQuota").textContent = quota ? `of ~${fmtMB(quota)}` : "";
   $("vaultNote").textContent = storagePersisted
     ? "Your data is marked persistent — the browser won't evict it. Still, back up regularly: it's the only copy."
@@ -1875,7 +2236,17 @@ function closeVault(){ $("vault").classList.remove("show"); }
 
 /* ---------- CSV export (metadata only, spreadsheet / insurance) ---------- */
 function csvCell(v){ v=(v==null?"":String(v)); return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v; }
+function downloadCSV(lines,filename){
+  const blob=new Blob(["﻿"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download=filename;a.click();URL.revokeObjectURL(a.href);
+}
 function exportCSV(){
+  if(activeTab==="apps") return exportAppsCSV();
+  if(activeTab==="writing") return exportWritingCSV();
+  return exportEditionsCSV();
+}
+function exportEditionsCSV(){
   const cols=["order","title","series","theme","year","tier","format","medium","edition","sold","price","status","file"];
   const head=["Order","Title","Series","Theme","Year","Tier","Format","Medium","Edition","Sold","Price (AUD)","Status","Master file","Sold numbers","Buyers","Created","Updated"];
   const dt=t=>t?new Date(t).toISOString().slice(0,10):"";
@@ -1888,10 +2259,26 @@ function exportCSV(){
     row.push(nums,buyers,dt(w.created),dt(w.updated));
     lines.push(row.map(csvCell).join(","));
   }
-  const blob=new Blob(["﻿"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
-  a.download=`raisonne-${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(a.href);
+  downloadCSV(lines,`raisonne-${new Date().toISOString().slice(0,10)}.csv`);
   toast(`Exported ${works.length} works to CSV`);
+}
+function exportAppsCSV(){
+  const head=["Name","Pitch","Status","Stack","Repo","Live","Notes","Created","Updated"];
+  const dt=t=>t?new Date(t).toISOString().slice(0,10):"";
+  const sorted=[...apps].sort((a,b)=>(b.updated||0)-(a.updated||0));
+  const lines=[head.join(",")];
+  for(const a of sorted) lines.push([a.name,a.pitch,a.status,a.stack,a.repo,a.live,a.notes,dt(a.created),dt(a.updated)].map(csvCell).join(","));
+  downloadCSV(lines,`raisonne-apps-${new Date().toISOString().slice(0,10)}.csv`);
+  toast(`Exported ${apps.length} projects to CSV`);
+}
+function exportWritingCSV(){
+  const head=["Title","Type","Status","Words","Goal","Synopsis","Notes","Created","Updated"];
+  const dt=t=>t?new Date(t).toISOString().slice(0,10):"";
+  const sorted=[...writings].sort((a,b)=>(b.updated||0)-(a.updated||0));
+  const lines=[head.join(",")];
+  for(const w of sorted) lines.push([w.title,w.wtype,w.status,w.words,w.goal,w.synopsis,w.notes,dt(w.created),dt(w.updated)].map(csvCell).join(","));
+  downloadCSV(lines,`raisonne-writing-${new Date().toISOString().slice(0,10)}.csv`);
+  toast(`Exported ${writings.length} pages to CSV`);
 }
 
 /* ---------- Collector catalogue (self-contained public HTML) ---------- */
@@ -2505,14 +2892,22 @@ function swapView(v){
    Exhibition view — walk the gallery one print at a time
    ============================================================ */
 let expoList=[], expoIdx=0;
+/* generic across tabs — each tab's own item list + grouping */
+function activeItems(){ return activeTab==="apps"?apps:activeTab==="writing"?writings:works; }
+function activeGroupedFn(){ return activeTab==="apps"?groupedApps:activeTab==="writing"?groupedWriting:grouped; }
+function openItemDrawer(item){
+  if(activeTab==="apps") openAppDrawer(item);
+  else if(activeTab==="writing") openWritingDrawer(item);
+  else openDrawer(item);
+}
 function expoOrder(){
-  const {map,keys}=grouped(); const arr=[];
+  const {map,keys}=activeGroupedFn()(); const arr=[];
   keys.forEach(k=>map.get(k).forEach(w=>arr.push(w.id)));
   return arr;
 }
 async function openExpo(id){
   const u=await hydrateUrl(id);
-  if(!u){ const w=works.find(x=>x.id===id); if(w) openDrawer(w); return; }
+  if(!u){ const w=activeItems().find(x=>x.id===id); if(w) openItemDrawer(w); return; }
   expoList=expoOrder();
   if(!expoList.length) return;
   await showExpoAt(Math.max(0,expoList.indexOf(id)));
@@ -2520,14 +2915,24 @@ async function openExpo(id){
 }
 async function showExpoAt(i){
   expoIdx=(i+expoList.length)%expoList.length;
-  const w=works.find(x=>x.id===expoList[expoIdx]); if(!w) return;
+  const w=activeItems().find(x=>x.id===expoList[expoIdx]); if(!w) return;
   const u=await hydrateUrl(w.id);
-  $("expoImg").src=u||""; $("expoImg").alt=w.title||"";
+  $("expoImg").src=u||""; $("expoImg").alt=w.title||w.name||"";
   const cols=await paletteFor(w);
   $("expoStage").style.setProperty("--dom",(cols&&cols[0])||"var(--brass)");
-  $("expoNo").textContent=[w.order!=null?"№ "+String(w.order).padStart(2,"0"):null, w.series||null, w.year||null].filter(Boolean).join("  ·  ");
-  $("expoTitle").textContent=w.title||"Untitled";
-  $("expoMeta").textContent=[w.format||w.tier, w.medium, w.edition?`Edition of ${w.edition}`:null].filter(Boolean).join(" · ");
+  if(activeTab==="apps"){
+    $("expoNo").textContent=[w.status||null, (w.stack||"").split(",")[0]||null].filter(Boolean).join("  ·  ");
+    $("expoTitle").textContent=w.name||"Untitled";
+    $("expoMeta").textContent=w.pitch||"";
+  }else if(activeTab==="writing"){
+    $("expoNo").textContent=[w.wtype||null, w.status||null].filter(Boolean).join("  ·  ");
+    $("expoTitle").textContent=w.title||"Untitled";
+    $("expoMeta").textContent=w.synopsis||"";
+  }else{
+    $("expoNo").textContent=[w.order!=null?"№ "+String(w.order).padStart(2,"0"):null, w.series||null, w.year||null].filter(Boolean).join("  ·  ");
+    $("expoTitle").textContent=w.title||"Untitled";
+    $("expoMeta").textContent=[w.format||w.tier, w.medium, w.edition?`Edition of ${w.edition}`:null].filter(Boolean).join(" · ");
+  }
   $("expoCount").textContent=`${expoIdx+1} / ${expoList.length}`;
 }
 function closeExpo(){ $("expo").classList.remove("show"); }
@@ -2554,10 +2959,187 @@ function openHelp(){ $("helpScrim").classList.add("show"); $("help").classList.a
 function closeHelp(){ $("helpScrim").classList.remove("show"); $("help").classList.remove("show"); }
 
 /* ============================================================
+   Tabs — Editions / Apps / Writing share one shell
+   ============================================================ */
+function statusOptionsFor(tab){
+  if(tab==="apps") return ["Idea","Building","Shipped","Archived"];
+  if(tab==="writing") return ["Idea","Drafting","Editing","Submitted","Published"];
+  return ["Concept","Proofing","Editioned","Active","Sold out","Retired"];
+}
+function switchTab(tab){
+  if(activeTab===tab) return;
+  activeTab=tab;
+  document.body.classList.remove("tab-editions","tab-apps","tab-writing");
+  document.body.classList.add("tab-"+tab);
+  $("tabbar").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
+  $("search").value="";
+  $("search").placeholder = tab==="apps" ? "Search name, pitch, stack…" : tab==="writing" ? "Search title, synopsis…" : "Search title, series, description…";
+  $("filterStatus").innerHTML=`<option value="">All statuses</option>`+statusOptionsFor(tab).map(s=>`<option>${s}</option>`).join("");
+  $("railH").textContent = tab==="editions" ? "Series" : "Status";
+  $("btnAddLabel").textContent = tab==="apps"?"Add project":tab==="writing"?"Add page":"Add work";
+  view="grid"; $("viewGrid").classList.add("on"); $("viewList").classList.remove("on");
+  firstPaint=true;
+  render();
+}
+
+/* ============================================================
+   Apps drawer
+   ============================================================ */
+function openAppDrawer(app){
+  editingApp = app ? {...app} : {id:uid(), status:"Idea"};
+  stagedAppImage=null;
+  $("appAccNo").textContent = app ? `Project ${app.id.slice(0,8).toUpperCase()}` : "New project";
+  $("aName").value=editingApp.name||"";
+  $("aPitch").value=editingApp.pitch||"";
+  $("aStatus").value=editingApp.status||"Idea";
+  $("aStack").value=editingApp.stack||"";
+  $("aRepo").value=editingApp.repo||"";
+  $("aLive").value=editingApp.live||"";
+  $("aNotes").value=editingApp.notes||"";
+  const ci=$("appImage");
+  const setImg=u=>{
+    if(u){ci.classList.remove("novel");ci.innerHTML=`<img src="${u}"><button class="repl" id="appReplBtn">Replace</button>`;
+      ci.querySelector("#appReplBtn").onclick=e=>{e.stopPropagation();$("appImageInput").click();};}
+    else{ci.classList.add("novel");ci.innerHTML=`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Drop or click to add a screenshot (optional)</span>`;}
+  };
+  if(app){ hydrateUrl(app.id).then(setImg); } else setImg(null);
+  $("appBtnDelete").style.display = app ? "" : "none";
+  const ds=$("appDstrip"); ds.style.background="";
+  if(app) paletteFor(app).then(cols=>{ if(cols&&cols.length&&editingApp&&editingApp.id===app.id) ds.style.background=`linear-gradient(90deg, ${cols.join(", ")})`; });
+  $("scrim").classList.add("show"); $("appDrawer").classList.add("show");
+  setTimeout(()=>$("aName").focus(),260);
+}
+function closeAppDrawer(){
+  $("scrim").classList.remove("show"); $("appDrawer").classList.remove("show");
+  if(document.activeElement&&document.activeElement.blur) document.activeElement.blur();
+  editingApp=null;
+  if(stagedAppImage){URL.revokeObjectURL(stagedAppImage.url);stagedAppImage=null;}
+}
+async function saveApp(){
+  if(!editingApp) return;
+  Object.assign(editingApp,{
+    name:$("aName").value.trim(), pitch:$("aPitch").value.trim(), status:$("aStatus").value,
+    stack:$("aStack").value.trim(), repo:$("aRepo").value.trim(), live:$("aLive").value.trim(),
+    notes:$("aNotes").value.trim(), updated:Date.now(),
+  });
+  if(!editingApp.name) editingApp.name="Untitled project";
+  if(editingApp.created==null) editingApp.created=Date.now();
+  if(stagedAppImage){
+    await put("images",{id:editingApp.id,blob:stagedAppImage.blob});
+    if(urls.has(editingApp.id)){URL.revokeObjectURL(urls.get(editingApp.id));urls.delete(editingApp.id);}
+    URL.revokeObjectURL(stagedAppImage.url);stagedAppImage=null;
+  }
+  await put("apps",editingApp);
+  const idx=apps.findIndex(a=>a.id===editingApp.id);
+  if(idx>=0) apps[idx]=editingApp; else apps.push(editingApp);
+  await bumpChanges();
+  toast(idx>=0?"Project updated":"Project added to the shelf");
+  closeAppDrawer(); render();
+}
+async function removeApp(){
+  if(!editingApp) return;
+  await finalizeDelete();
+  const a=apps.find(x=>x.id===editingApp.id);
+  if(!a){ closeAppDrawer(); return; }
+  apps=apps.filter(x=>x.id!==a.id);
+  pendingDelete={store:"apps",item:a};
+  closeAppDrawer(); render(); await bumpChanges();
+  toastUndo(`Removed “${a.name||"Untitled"}”`, ()=>{
+    if(!pendingDelete||pendingDelete.item.id!==a.id) return;
+    pendingDelete=null; apps.push(a); render(); toast("Restored");
+  });
+  setTimeout(()=>{ if(pendingDelete&&pendingDelete.item.id===a.id) finalizeDelete(); },8300);
+}
+
+/* ============================================================
+   Writing drawer
+   ============================================================ */
+function updateWritingMeter(){
+  const goal=parseInt($("wGoal").value)||0, words=parseInt($("wWords").value)||0;
+  const fill=$("wMeterFill"), txt=$("wMeterTxt");
+  if(!goal){ $("wMeter").style.display="none"; txt.textContent=""; return; }
+  $("wMeter").style.display="block";
+  const pct=Math.min(100,Math.round(words/goal*100));
+  fill.style.width=pct+"%"; fill.classList.toggle("full",words>=goal);
+  txt.textContent=`${words.toLocaleString()} of ${goal.toLocaleString()} words · ${Math.max(0,goal-words).toLocaleString()} to go`;
+}
+function openWritingDrawer(w){
+  editingWriting = w ? {...w} : {id:uid(), status:"Idea", wtype:"Novel", year:new Date().getFullYear()};
+  stagedWritingImage=null;
+  $("wAccNo").textContent = w ? `Page ${w.id.slice(0,8).toUpperCase()}` : "New page";
+  $("wTitle").value=editingWriting.title||"";
+  $("wType").value=editingWriting.wtype||"Novel";
+  $("wStatus").value=editingWriting.status||"Idea";
+  $("wWords").value=editingWriting.words??"";
+  $("wGoal").value=editingWriting.goal??"";
+  $("wSynopsis").value=editingWriting.synopsis||"";
+  $("wNotes").value=editingWriting.notes||"";
+  updateWritingMeter();
+  const ci=$("wImage");
+  const setImg=u=>{
+    if(u){ci.classList.remove("novel");ci.innerHTML=`<img src="${u}"><button class="repl" id="wReplBtn">Replace</button>`;
+      ci.querySelector("#wReplBtn").onclick=e=>{e.stopPropagation();$("wImageInput").click();};}
+    else{ci.classList.add("novel");ci.innerHTML=`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Drop or click to add a cover (optional)</span>`;}
+  };
+  if(w){ hydrateUrl(w.id).then(setImg); } else setImg(null);
+  $("wBtnDelete").style.display = w ? "" : "none";
+  const ds=$("wDstrip"); ds.style.background="";
+  if(w) paletteFor(w).then(cols=>{ if(cols&&cols.length&&editingWriting&&editingWriting.id===w.id) ds.style.background=`linear-gradient(90deg, ${cols.join(", ")})`; });
+  $("scrim").classList.add("show"); $("writingDrawer").classList.add("show");
+  setTimeout(()=>$("wTitle").focus(),260);
+}
+function closeWritingDrawer(){
+  $("scrim").classList.remove("show"); $("writingDrawer").classList.remove("show");
+  if(document.activeElement&&document.activeElement.blur) document.activeElement.blur();
+  editingWriting=null;
+  if(stagedWritingImage){URL.revokeObjectURL(stagedWritingImage.url);stagedWritingImage=null;}
+}
+async function saveWriting(){
+  if(!editingWriting) return;
+  const num=v=>v===""?null:Number(v);
+  Object.assign(editingWriting,{
+    title:$("wTitle").value.trim(), wtype:$("wType").value, status:$("wStatus").value,
+    words:num($("wWords").value)||0, goal:num($("wGoal").value),
+    synopsis:$("wSynopsis").value.trim(), notes:$("wNotes").value.trim(), updated:Date.now(),
+  });
+  if(!editingWriting.title) editingWriting.title="Untitled";
+  if(editingWriting.created==null) editingWriting.created=Date.now();
+  if(stagedWritingImage){
+    await put("images",{id:editingWriting.id,blob:stagedWritingImage.blob});
+    if(urls.has(editingWriting.id)){URL.revokeObjectURL(urls.get(editingWriting.id));urls.delete(editingWriting.id);}
+    URL.revokeObjectURL(stagedWritingImage.url);stagedWritingImage=null;
+  }
+  await put("writings",editingWriting);
+  const idx=writings.findIndex(w=>w.id===editingWriting.id);
+  if(idx>=0) writings[idx]=editingWriting; else writings.push(editingWriting);
+  await bumpChanges();
+  toast(idx>=0?"Page updated":"Page added to the index");
+  closeWritingDrawer(); render();
+}
+async function removeWriting(){
+  if(!editingWriting) return;
+  await finalizeDelete();
+  const w=writings.find(x=>x.id===editingWriting.id);
+  if(!w){ closeWritingDrawer(); return; }
+  writings=writings.filter(x=>x.id!==w.id);
+  pendingDelete={store:"writings",item:w};
+  closeWritingDrawer(); render(); await bumpChanges();
+  toastUndo(`Removed “${w.title||"Untitled"}”`, ()=>{
+    if(!pendingDelete||pendingDelete.item.id!==w.id) return;
+    pendingDelete=null; writings.push(w); render(); toast("Restored");
+  });
+  setTimeout(()=>{ if(pendingDelete&&pendingDelete.item.id===w.id) finalizeDelete(); },8300);
+}
+
+/* ============================================================
    Events
    ============================================================ */
 function wire(){
-  $("btnAdd").onclick=()=>openDrawer(null);
+  $("btnAdd").onclick=()=>{
+    if(activeTab==="apps") openAppDrawer(null);
+    else if(activeTab==="writing") openWritingDrawer(null);
+    else openDrawer(null);
+  };
   $("drawerClose").onclick=closeDrawer;
   $("scrim").onclick=closeDrawer;
   $("btnSave").onclick=saveWork;
@@ -2565,6 +3147,38 @@ function wire(){
   $("search").oninput=render;
   $("filterTheme").onchange=render;
   $("filterStatus").onchange=render;
+  // tab switcher
+  $("tabbar").addEventListener("click",e=>{ const b=e.target.closest("button[data-tab]"); if(b) switchTab(b.dataset.tab); });
+  // apps drawer
+  $("appDrawerClose").onclick=closeAppDrawer;
+  $("appBtnSave").onclick=saveApp;
+  $("appBtnDelete").onclick=removeApp;
+  $("appImage").onclick=e=>{ if($("appImage").classList.contains("novel")) $("appImageInput").click(); };
+  $("appImageInput").onchange=async e=>{
+    const f=e.target.files[0]; e.target.value=""; if(!f) return;
+    const blob=await downscale(f);
+    if(stagedAppImage) URL.revokeObjectURL(stagedAppImage.url);
+    const u=URL.createObjectURL(blob); stagedAppImage={blob,url:u};
+    const ci=$("appImage"); ci.classList.remove("novel");
+    ci.innerHTML=`<img src="${u}"><button class="repl" id="appReplBtn">Replace</button>`;
+    ci.querySelector("#appReplBtn").onclick=ev=>{ev.stopPropagation();$("appImageInput").click();};
+  };
+  // writing drawer
+  $("wDrawerClose").onclick=closeWritingDrawer;
+  $("wBtnSave").onclick=saveWriting;
+  $("wBtnDelete").onclick=removeWriting;
+  $("wWords").oninput=updateWritingMeter;
+  $("wGoal").oninput=updateWritingMeter;
+  $("wImage").onclick=e=>{ if($("wImage").classList.contains("novel")) $("wImageInput").click(); };
+  $("wImageInput").onchange=async e=>{
+    const f=e.target.files[0]; e.target.value=""; if(!f) return;
+    const blob=await downscale(f);
+    if(stagedWritingImage) URL.revokeObjectURL(stagedWritingImage.url);
+    const u=URL.createObjectURL(blob); stagedWritingImage={blob,url:u};
+    const ci=$("wImage"); ci.classList.remove("novel");
+    ci.innerHTML=`<img src="${u}"><button class="repl" id="wReplBtn">Replace</button>`;
+    ci.querySelector("#wReplBtn").onclick=ev=>{ev.stopPropagation();$("wImageInput").click();};
+  };
   $("fEdition").oninput=renderSales;
   $("fSold").oninput=updateMeter;
   $("fPrice").oninput=updateMargin;
@@ -2683,9 +3297,9 @@ function wire(){
     if(head){const k=head.dataset.toggle;collapsed.has(k)?collapsed.delete(k):collapsed.add(k);render();return;}
     const card=e.target.closest("[data-id]");
     if(card){
-      const w=works.find(x=>x.id===card.dataset.id); if(!w) return;
+      const item=activeItems().find(x=>x.id===card.dataset.id); if(!item) return;
       // the artwork itself opens the exhibition; the caption opens the card
-      if(e.target.closest("[data-img]")) openExpo(w.id); else openDrawer(w);
+      if(e.target.closest("[data-img]")) openExpo(item.id); else openItemDrawer(item);
     }
   });
 
@@ -2693,7 +3307,7 @@ function wire(){
   $("expoClose").onclick=closeExpo;
   $("expoPrev").onclick=()=>showExpoAt(expoIdx-1);
   $("expoNext").onclick=()=>showExpoAt(expoIdx+1);
-  $("expoEdit").onclick=()=>{ const w=works.find(x=>x.id===expoList[expoIdx]); closeExpo(); if(w) openDrawer(w); };
+  $("expoEdit").onclick=()=>{ const w=activeItems().find(x=>x.id===expoList[expoIdx]); closeExpo(); if(w) openItemDrawer(w); };
   $("expo").addEventListener("click",e=>{ if(e.target===$("expo")) closeExpo(); });
 
   // the quiet guide
@@ -2728,13 +3342,19 @@ function wire(){
       return;
     }
     if(e.key==="Escape" && $("drawer").classList.contains("show")) closeDrawer();
+    else if(e.key==="Escape" && $("appDrawer").classList.contains("show")) closeAppDrawer();
+    else if(e.key==="Escape" && $("writingDrawer").classList.contains("show")) closeWritingDrawer();
     else if(e.key==="Escape" && $("help").classList.contains("show")) closeHelp();
     else if(e.key==="Escape" && $("dash").classList.contains("show")) closeDash();
     else if(e.key==="Escape" && $("market").classList.contains("show")) closeMarket();
     else if(e.key==="Escape" && $("crm").classList.contains("show")) closeCRM();
     else if(e.key==="Escape" && $("pal").classList.contains("show")) closePalette();
     else if(e.key==="Escape" && $("vault").classList.contains("show")) closeVault();
-    if((e.ctrlKey||e.metaKey)&&e.key==="s"&&$("drawer").classList.contains("show")){e.preventDefault();saveWork();}
+    if((e.ctrlKey||e.metaKey)&&e.key==="s"){
+      if($("drawer").classList.contains("show")){e.preventDefault();saveWork();}
+      else if($("appDrawer").classList.contains("show")){e.preventDefault();saveApp();}
+      else if($("writingDrawer").classList.contains("show")){e.preventDefault();saveWriting();}
+    }
     const typing=/input|textarea|select/i.test(document.activeElement.tagName);
     if(e.key==="/"&&!typing){e.preventDefault();$("search").focus();}
     if(e.key==="?"&&!typing){e.preventDefault();$("help").classList.contains("show")?closeHelp():openHelp();}
@@ -2763,6 +3383,29 @@ function wire(){
       });}
       return;
     }
+    if($("appDrawer").classList.contains("show")){
+      const f=[...files].find(x=>x.type.startsWith("image/"));
+      if(f){downscale(f).then(blob=>{
+        if(stagedAppImage)URL.revokeObjectURL(stagedAppImage.url);
+        const u=URL.createObjectURL(blob);stagedAppImage={blob,url:u};
+        const ci=$("appImage");ci.classList.remove("novel");
+        ci.innerHTML=`<img src="${u}"><button class="repl" id="appReplBtn">Replace</button>`;
+        ci.querySelector("#appReplBtn").onclick=ev=>{ev.stopPropagation();$("appImageInput").click();};
+      });}
+      return;
+    }
+    if($("writingDrawer").classList.contains("show")){
+      const f=[...files].find(x=>x.type.startsWith("image/"));
+      if(f){downscale(f).then(blob=>{
+        if(stagedWritingImage)URL.revokeObjectURL(stagedWritingImage.url);
+        const u=URL.createObjectURL(blob);stagedWritingImage={blob,url:u};
+        const ci=$("wImage");ci.classList.remove("novel");
+        ci.innerHTML=`<img src="${u}"><button class="repl" id="wReplBtn">Replace</button>`;
+        ci.querySelector("#wReplBtn").onclick=ev=>{ev.stopPropagation();$("wImageInput").click();};
+      });}
+      return;
+    }
+    if(activeTab!=="editions"){ toast("Switch to Editions to drop print images this way, or open a project/page first"); return; }
     stageFiles(files);
   });
 }
@@ -2867,6 +3510,10 @@ async function boot(){
   updateNudge(); refreshMasterHint();
   works=await all("works");
   collectors=await all("collectors");
+  apps=await all("apps");
+  writings=await all("writings");
+  document.body.classList.add("tab-editions");
+  $("filterStatus").innerHTML=`<option value="">All statuses</option>`+statusOptionsFor("editions").map(s=>`<option>${s}</option>`).join("");
   render();
   initVault();
 }

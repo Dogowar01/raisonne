@@ -1,7 +1,31 @@
 # Raisonné
 
-A private registrar's ledger for **Signal9 Studio** fine-art print editions. Single-file,
-offline-first, no backend. See [`raisonne-brief.md`](raisonne-brief.md) for the full spec.
+A private registrar for **Signal9 Studio** — three lightweight registers in one single-file,
+offline-first app, no backend: **Editions** (fine-art print editions, the full studio suite),
+**Apps** (what you're building), and **Writing** (what you're writing). See
+[`raisonne-brief.md`](raisonne-brief.md) for the original Editions spec.
+
+## Three registers, one shell
+
+A tab bar in the masthead (**Editions · Apps · Writing**) switches between them. All three share
+the same gallery-at-night shell — atmosphere, dark/light theme, fonts, the fractured mark,
+per-image palette glow, and exhibition view — but each has its own IndexedDB store and its own
+tailored fields:
+
+- **Editions** — the full studio suite: sales register, collectors, market mode, studio dashboard,
+  palette studio, collector catalogue, certificates. Unchanged, and still the primary register.
+- **Apps** — a lightweight project shelf: name, one-line pitch, status (Idea/Building/Shipped/
+  Archived), stack tags, repo/live links, notes, an optional screenshot. Grouped by status.
+- **Writing** — a lightweight manuscript index: title, type, status (Idea/Drafting/Editing/
+  Submitted/Published), a word-count meter against a goal, synopsis, notes, an optional cover.
+  Grouped by status. (Not a writing tool — if you want the fuller writing-companion experience,
+  that's what Ballast is for; this is just an at-a-glance register.)
+
+Search, grid/ledger view, exhibition view (click the artwork to view it large), CSV export,
+and undo-safe delete all work the same way across all three tabs. **Back up** always bundles
+every register (plus collectors) into one JSON; **CSV** exports whichever tab is active.
+Editions-only tools (Market, Collectors, Studio, Palette, Catalogue, Print) simply hide on the
+other two tabs.
 
 ## Files
 
