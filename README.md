@@ -46,6 +46,19 @@ in. Back up before anything risky.
 - **CSV** exports the register (metadata + sold numbers/buyers, no images) for spreadsheets or
   insurance.
 
+## Exhibition view & safety
+
+- **Exhibition view:** click any **artwork** to view it large — the room dims and the print hangs
+  in its own palette's glow; **← →** walks the gallery, Esc leaves. Click a plate's **caption**
+  (or a ledger row) to edit instead.
+- **Undo-safe delete:** removing a work shows an 8-second **Undo** toast; the record only truly
+  leaves the register when the grace period passes.
+- **Tier spin-offs:** in a saved work's card, **"Spin off tier"** creates the A2 Hero / A3 / Art
+  Card sister edition sharing the same image, starting at zero sold.
+- **Edition guards:** sold can't exceed the edition, and selling the last number automatically
+  stamps the work **Sold out**.
+- **A quiet guide:** press **?** (or the toolbar ?) for the room map and keyboard shortcuts.
+
 ## Registrar features
 
 - **Per-number sale tracking:** in a work's card, the *Sales register* shows the whole edition as

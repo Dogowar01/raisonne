@@ -761,6 +761,58 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
   filter:drop-shadow(0 0 14px color-mix(in srgb, var(--brass) 45%, transparent))}
 .empty-state h3{font-style:italic;font-size:34px}
 
+/* exhibition view — the room dims, one print hangs in the light */
+.expo{
+  position:fixed;inset:0;z-index:85;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:20px;padding:44px 84px 30px;
+  background:radial-gradient(90% 80% at 50% 38%, rgba(38,26,16,.9), rgba(8,6,4,.96)),rgba(8,6,4,.9);
+  opacity:0;pointer-events:none;transition:opacity .32s;
+}
+.expo.show{opacity:1;pointer-events:auto}
+.expo-stage{--dom:var(--brass);max-width:min(1100px,86vw);display:flex;align-items:center;justify-content:center;min-height:0;flex:0 1 auto}
+.expo-stage img{
+  max-width:100%;max-height:62vh;display:block;background:#0c0906;
+  box-shadow:0 2px 10px rgba(0,0,0,.6), 0 44px 120px -24px color-mix(in srgb, var(--dom) 55%, transparent),
+    0 0 0 1px rgba(255,238,214,.07);
+  transform:scale(.97);transition:transform .32s cubic-bezier(.2,.7,.2,1);
+}
+.expo.show .expo-stage img{transform:scale(1)}
+.expo-cap{text-align:center;color:#efe4d2;max-width:640px}
+.expo-cap .eno{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:rgba(239,228,210,.5)}
+.expo-cap h2{font-family:var(--serif);font-style:italic;font-weight:500;font-size:32px;margin:4px 0 5px;line-height:1.1}
+.expo-cap .emeta{font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:rgba(239,228,210,.65)}
+.expo-cap .erow{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:13px}
+.expo-cap .ecount{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:rgba(239,228,210,.4)}
+.expo-cap .minibtn{background:rgba(239,228,210,.06);border-color:rgba(239,228,210,.22);color:rgba(239,228,210,.8)}
+.expo-cap .minibtn:hover{color:#efe4d2;border-color:rgba(239,228,210,.5)}
+.expo-x{position:absolute;top:18px;right:20px;background:none;border:0;color:rgba(239,228,210,.55);cursor:pointer;padding:6px}
+.expo-x:hover{color:#efe4d2}
+.expo-x svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6}
+.expo-nav{
+  position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(239,228,210,.05);border:1px solid rgba(239,228,210,.16);border-radius:50%;
+  width:46px;height:46px;display:flex;align-items:center;justify-content:center;
+  color:rgba(239,228,210,.6);cursor:pointer;transition:all .18s;
+}
+.expo-nav:hover{color:#efe4d2;border-color:rgba(239,228,210,.45);background:rgba(239,228,210,.1)}
+.expo-nav.prev{left:22px}.expo-nav.next{right:22px}
+.expo-nav svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8}
+@media (max-width:700px){.expo{padding:30px 16px}.expo-nav.prev{left:8px}.expo-nav.next{right:8px}}
+
+/* undo toast */
+.toast.act{pointer-events:auto}
+.toast button{
+  background:none;border:0;color:var(--brass);font-family:var(--mono);font-size:12px;
+  letter-spacing:.05em;margin-left:12px;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px;
+}
+[data-theme="dark"] .toast button{color:#8a5a20}
+
+/* the quiet guide */
+.help{width:620px}
+.hrow{display:flex;gap:16px;align-items:baseline;padding:8px 2px;border-top:1px solid var(--rule-soft);font-size:13.5px;color:var(--ink-soft);line-height:1.5}
+.hrow:first-of-type{border-top:0}
+.hrow b{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.04em;color:var(--brass);flex:0 0 118px}
+
 @media (prefers-reduced-motion:reduce){
   #atmo i,.mark rect{animation:none}
   .mark rect{opacity:1;transform:none}
@@ -858,6 +910,7 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
     <button class="tbtn" id="btnExport" title="Back up everything (metadata + images)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Back up</button>
     <button class="tbtn" id="btnCsv" title="Export the register as CSV"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/></svg>CSV</button>
     <button class="tbtn" id="btnImport" title="Restore from a backup"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 8l5-5 5 5"/><path d="M12 3v12"/></svg>Restore</button>
+    <button class="tbtn" id="btnHelp" title="Help & shortcuts (?)">?</button>
     <button class="tbtn" id="btnTheme" title="Studio light">☾</button>
     <button class="tbtn" id="btnInstall" title="Install as an app" hidden><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>Install</button>
     <button class="tbtn primary" id="btnAdd"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add work</button>
@@ -938,6 +991,12 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
     </div>
     <div class="meter" id="meter"><i id="meterFill"></i></div>
     <div class="hint" id="meterTxt"></div>
+    <div class="file-actions" id="dupRow" style="margin-top:12px;display:none">
+      <span class="hint" style="margin:0 4px 0 0">Spin off tier:</span>
+      <button type="button" class="minibtn" data-dup="A2 Hero">A2 Hero</button>
+      <button type="button" class="minibtn" data-dup="A3">A3</button>
+      <button type="button" class="minibtn" data-dup="Art Card">Art Card</button>
+    </div>
 
     <div class="divider-l" style="margin-top:20px">Sales register</div>
     <div class="hint" id="salesHint">Tap a number to mark it sold, then record the buyer. Sold count follows this.</div>
@@ -1046,6 +1105,47 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
     </div>
   </div>
   <div class="dash-body" id="palBody"></div>
+</div>
+
+<!-- Exhibition view — the room dims and the print hangs alone -->
+<div class="expo" id="expo" role="dialog" aria-label="Exhibition view">
+  <button class="expo-x" id="expoClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+  <button class="expo-nav prev" id="expoPrev" aria-label="Previous work"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <div class="expo-stage" id="expoStage"><img id="expoImg" alt=""></div>
+  <button class="expo-nav next" id="expoNext" aria-label="Next work"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+  <div class="expo-cap">
+    <div class="eno" id="expoNo"></div>
+    <h2 id="expoTitle"></h2>
+    <div class="emeta" id="expoMeta"></div>
+    <div class="erow"><span class="ecount" id="expoCount"></span><button class="minibtn" id="expoEdit">Open accession card</button></div>
+  </div>
+</div>
+
+<!-- A quiet guide -->
+<div class="dash-scrim" id="helpScrim"></div>
+<div class="dash help" id="help" role="dialog" aria-label="Help">
+  <div class="dash-head">
+    <h2>A quiet guide</h2><span class="dash-sub">Everything the register can do</span>
+    <button class="x" id="helpClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="dash-body">
+    <div class="dash-h">The rooms</div>
+    <div class="hrow"><b>Exhibition</b><span>Click any artwork to view it large — ← → walks the gallery, Esc leaves.</span></div>
+    <div class="hrow"><b>Accession card</b><span>Click a plate's caption (or a ledger row) to edit — sales register, tiers, master file, waitlist.</span></div>
+    <div class="hrow"><b>Market</b><span>Stall mode: tap a work to sell its next number; day total and undo up top.</span></div>
+    <div class="hrow"><b>Collectors</b><span>Your buyers — contacts, purchase history, waitlists. “Sync buyers” pulls names from sales.</span></div>
+    <div class="hrow"><b>Studio</b><span>Revenue, profit after costs, sell-through by collection, best sellers.</span></div>
+    <div class="hrow"><b>Palette</b><span>Colour tools: eyedropper, harmonies, duotone, notan, wall mockup, exports to Procreate/Adobe/GIMP.</span></div>
+    <div class="hrow"><b>Catalogue</b><span>A public collector catalogue — no sold counts, no private notes.</span></div>
+    <div class="hrow"><b>Vault</b><span>Storage health. Back up bundles everything into one JSON; CSV for spreadsheets.</span></div>
+    <div class="hrow"><b>Import</b><span>Drag print images anywhere onto the window — titles are read from filenames.</span></div>
+    <div class="dash-h">Keys</div>
+    <div class="hrow"><b>/</b><span>Focus search</span></div>
+    <div class="hrow"><b>Ctrl / Cmd + S</b><span>Save the open accession card</span></div>
+    <div class="hrow"><b>← →</b><span>Walk the gallery in exhibition view</span></div>
+    <div class="hrow"><b>Esc</b><span>Close whatever is open</span></div>
+    <div class="hrow"><b>?</b><span>This guide</span></div>
+  </div>
 </div>
 
 <script>
@@ -1469,12 +1569,14 @@ function openDrawer(work){
   };
   if(work){ hydrateUrl(work.id).then(setImg); } else setImg(null);
   $("btnDelete").style.display = work ? "" : "none";
+  $("dupRow").style.display = work ? "flex" : "none";
 
   $("scrim").classList.add("show");$("drawer").classList.add("show");
   setTimeout(()=>$("fTitle").focus(),260);
 }
 function closeDrawer(){
   $("scrim").classList.remove("show");$("drawer").classList.remove("show");
+  if(document.activeElement&&document.activeElement.blur) document.activeElement.blur();  // free the shortcuts
   editing=null;
   if(stagedImage){URL.revokeObjectURL(stagedImage.url);stagedImage=null;}
 }
@@ -1553,11 +1655,19 @@ function readDrawer(){
   // sold count follows the sales register when it's in use
   editing.sales = Array.isArray(editing.sales) ? editing.sales : [];
   if(editing.sales.length) editing.sold = editing.sales.length;
+  // edition guards — can't sell more than the edition holds
+  if(editing.edition!=null && editing.sold!=null && editing.sold>editing.edition){
+    editing.sold=editing.edition;
+    toast(`Sold count capped at the edition of ${editing.edition}`);
+  }
   if(editing.created==null) editing.created=Date.now();
 }
 async function saveWork(){
   readDrawer();
   if(!editing.title) editing.title="Untitled";
+  // the last number selling closes the edition
+  if(editing.edition && workSold(editing)>=editing.edition
+     && (editing.status==="Active"||editing.status==="Editioned")) editing.status="Sold out";
   // image
   if(stagedImage){
     await put("images",{id:editing.id,blob:stagedImage.blob});
@@ -1575,14 +1685,37 @@ async function saveWork(){
   // continue through a multi-drop queue
   if(queue.length) nextQueued();
 }
+/* Soft delete — the work leaves the room but the record survives an
+   8-second grace period (and a mid-grace app close: the DB row is only
+   removed when the grace expires, so worst case it reappears on boot). */
+let pendingDelete=null;
+async function finalizeDelete(){
+  if(!pendingDelete) return;
+  const w=pendingDelete.work; pendingDelete=null;
+  await del("works",w.id); await del("images",w.id);
+  if(urls.has(w.id)){URL.revokeObjectURL(urls.get(w.id));urls.delete(w.id);}
+}
+function toastUndo(msg,onUndo){
+  const t=$("toast");
+  t.innerHTML=`${esc(msg)}<button id="toastUndoBtn">Undo</button>`;
+  t.classList.add("show","act");
+  clearTimeout(toastT);
+  $("toastUndoBtn").onclick=()=>{t.classList.remove("show","act");onUndo();};
+  toastT=setTimeout(()=>t.classList.remove("show","act"),8000);
+}
 async function removeWork(){
   if(!editing) return;
-  if(!confirm(`Remove “${editing.title||"Untitled"}” from the register? This cannot be undone.`)) return;
-  await del("works",editing.id);await del("images",editing.id);
-  if(urls.has(editing.id)){URL.revokeObjectURL(urls.get(editing.id));urls.delete(editing.id);}
-  works=works.filter(w=>w.id!==editing.id);
-  await bumpChanges();
-  toast("Work removed");closeDrawer();render();
+  await finalizeDelete();                       // flush any earlier pending removal
+  const w=works.find(x=>x.id===editing.id);
+  if(!w){ closeDrawer(); return; }
+  works=works.filter(x=>x.id!==w.id);
+  pendingDelete={work:w};
+  closeDrawer(); render(); await bumpChanges();
+  toastUndo(`Removed “${w.title||"Untitled"}”`, ()=>{
+    if(!pendingDelete||pendingDelete.work.id!==w.id) return;
+    pendingDelete=null; works.push(w); render(); toast("Restored to the register");
+  });
+  setTimeout(()=>{ if(pendingDelete&&pendingDelete.work.id===w.id) finalizeDelete(); },8300);
 }
 
 /* staged multi-drop */
@@ -2359,6 +2492,58 @@ function swapView(v){
 }
 
 /* ============================================================
+   Exhibition view — walk the gallery one print at a time
+   ============================================================ */
+let expoList=[], expoIdx=0;
+function expoOrder(){
+  const {map,keys}=grouped(); const arr=[];
+  keys.forEach(k=>map.get(k).forEach(w=>arr.push(w.id)));
+  return arr;
+}
+async function openExpo(id){
+  const u=await hydrateUrl(id);
+  if(!u){ const w=works.find(x=>x.id===id); if(w) openDrawer(w); return; }
+  expoList=expoOrder();
+  if(!expoList.length) return;
+  await showExpoAt(Math.max(0,expoList.indexOf(id)));
+  $("expo").classList.add("show");
+}
+async function showExpoAt(i){
+  expoIdx=(i+expoList.length)%expoList.length;
+  const w=works.find(x=>x.id===expoList[expoIdx]); if(!w) return;
+  const u=await hydrateUrl(w.id);
+  $("expoImg").src=u||""; $("expoImg").alt=w.title||"";
+  const cols=await paletteFor(w);
+  $("expoStage").style.setProperty("--dom",(cols&&cols[0])||"var(--brass)");
+  $("expoNo").textContent=[w.order!=null?"№ "+String(w.order).padStart(2,"0"):null, w.series||null, w.year||null].filter(Boolean).join("  ·  ");
+  $("expoTitle").textContent=w.title||"Untitled";
+  $("expoMeta").textContent=[w.format||w.tier, w.medium, w.edition?`Edition of ${w.edition}`:null].filter(Boolean).join(" · ");
+  $("expoCount").textContent=`${expoIdx+1} / ${expoList.length}`;
+}
+function closeExpo(){ $("expo").classList.remove("show"); }
+
+/* Spin off a sister edition in another tier — shares the image & story,
+   starts its own edition count at zero. */
+async function duplicateAs(tier){
+  if(!editing) return;
+  const src=works.find(w=>w.id===editing.id);
+  if(!src){ toast("Save this work first"); return; }
+  const id=uid(), now=Date.now();
+  const fmtMap={"A2 Hero":"A2","A3":"A3","Art Card":"A6"};
+  const copy={...src, id, tier, format:fmtMap[tier]||src.format,
+    sold:0, sales:[], status:"Concept", created:now, updated:now};
+  const rec=await get("images",src.id);
+  if(rec&&rec.blob) await put("images",{id,blob:rec.blob});
+  await put("works",copy); works.push(copy); await bumpChanges();
+  closeDrawer(); render(); openDrawer(copy);
+  toast(`${tier} edition spun off — adjust and save`);
+}
+
+/* the quiet guide */
+function openHelp(){ $("helpScrim").classList.add("show"); $("help").classList.add("show"); }
+function closeHelp(){ $("helpScrim").classList.remove("show"); $("help").classList.remove("show"); }
+
+/* ============================================================
    Events
    ============================================================ */
 function wire(){
@@ -2487,8 +2672,27 @@ function wire(){
     const head=e.target.closest("[data-toggle]");
     if(head){const k=head.dataset.toggle;collapsed.has(k)?collapsed.delete(k):collapsed.add(k);render();return;}
     const card=e.target.closest("[data-id]");
-    if(card){const w=works.find(x=>x.id===card.dataset.id);if(w)openDrawer(w);}
+    if(card){
+      const w=works.find(x=>x.id===card.dataset.id); if(!w) return;
+      // the artwork itself opens the exhibition; the caption opens the card
+      if(e.target.closest("[data-img]")) openExpo(w.id); else openDrawer(w);
+    }
   });
+
+  // exhibition
+  $("expoClose").onclick=closeExpo;
+  $("expoPrev").onclick=()=>showExpoAt(expoIdx-1);
+  $("expoNext").onclick=()=>showExpoAt(expoIdx+1);
+  $("expoEdit").onclick=()=>{ const w=works.find(x=>x.id===expoList[expoIdx]); closeExpo(); if(w) openDrawer(w); };
+  $("expo").addEventListener("click",e=>{ if(e.target===$("expo")) closeExpo(); });
+
+  // the quiet guide
+  $("btnHelp").onclick=openHelp;
+  $("helpClose").onclick=closeHelp;
+  $("helpScrim").onclick=closeHelp;
+
+  // tier spin-offs
+  document.querySelectorAll("[data-dup]").forEach(b=>b.onclick=()=>duplicateAs(b.dataset.dup));
 
   // rail active highlight on scroll
   $("cat").addEventListener("scroll",()=>{
@@ -2506,14 +2710,24 @@ function wire(){
 
   // keyboard
   document.addEventListener("keydown",e=>{
+    // exhibition owns the keys while it's open
+    if($("expo").classList.contains("show")){
+      if(e.key==="Escape") closeExpo();
+      else if(e.key==="ArrowRight"){e.preventDefault();showExpoAt(expoIdx+1);}
+      else if(e.key==="ArrowLeft"){e.preventDefault();showExpoAt(expoIdx-1);}
+      return;
+    }
     if(e.key==="Escape" && $("drawer").classList.contains("show")) closeDrawer();
+    else if(e.key==="Escape" && $("help").classList.contains("show")) closeHelp();
     else if(e.key==="Escape" && $("dash").classList.contains("show")) closeDash();
     else if(e.key==="Escape" && $("market").classList.contains("show")) closeMarket();
     else if(e.key==="Escape" && $("crm").classList.contains("show")) closeCRM();
     else if(e.key==="Escape" && $("pal").classList.contains("show")) closePalette();
     else if(e.key==="Escape" && $("vault").classList.contains("show")) closeVault();
     if((e.ctrlKey||e.metaKey)&&e.key==="s"&&$("drawer").classList.contains("show")){e.preventDefault();saveWork();}
-    if(e.key==="/"&&!/input|textarea|select/i.test(document.activeElement.tagName)){e.preventDefault();$("search").focus();}
+    const typing=/input|textarea|select/i.test(document.activeElement.tagName);
+    if(e.key==="/"&&!typing){e.preventDefault();$("search").focus();}
+    if(e.key==="?"&&!typing){e.preventDefault();$("help").classList.contains("show")?closeHelp():openHelp();}
   });
 
   // window-wide drag & drop
