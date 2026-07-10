@@ -754,6 +754,40 @@ body.tab-writing{
 .pal-empty{text-align:center;color:var(--ink-soft);padding:44px 0;font-family:var(--prose)}
 .pal-empty h3{font-family:var(--serif);font-style:italic;font-size:24px;color:var(--ink);margin:0 0 6px}
 
+/* marks & notes — the grease-pencil layer over the print */
+.pwrap{position:relative;display:flex;max-width:100%}
+#annotCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#pinLayer{position:absolute;inset:0;pointer-events:none}
+.pwrap[data-mode="draw"] .pcanvas{cursor:crosshair;touch-action:none}
+.pwrap[data-mode="note"] .pcanvas{cursor:cell}
+.pin{
+  position:absolute;transform:translate(-50%,-50%);width:20px;height:20px;border-radius:50%;
+  background:var(--pc,#d9a75a);color:#1a130d;font-family:var(--mono);font-size:10px;font-weight:500;
+  border:2px solid rgba(255,255,255,.8);box-shadow:0 2px 8px rgba(0,0,0,.4);
+  cursor:pointer;pointer-events:auto;padding:0;line-height:1;transition:transform .12s;
+}
+.pin:hover{transform:translate(-50%,-50%) scale(1.2)}
+.pin-edit{
+  position:absolute;transform:translate(-50%,14px);display:flex;gap:5px;align-items:center;
+  pointer-events:auto;z-index:6;min-width:240px;max-width:90%;
+  background:var(--paper);border:1px solid var(--rule);border-radius:7px;padding:6px;box-shadow:var(--shadow-3d);
+}
+.pin-edit input{flex:1;min-width:0;background:var(--field);border:1px solid var(--rule);border-radius:3px;padding:5px 8px;font-size:12px;font-family:var(--prose);outline:none;color:var(--ink)}
+.pin-edit input:focus{border-color:var(--accent)}
+/* the tell-tale on plates — this work carries studio notes */
+.andot{
+  position:absolute;top:10px;left:10px;width:11px;height:11px;border-radius:50%;z-index:3;
+  border:0;padding:0;cursor:pointer;background:var(--brass);
+  box-shadow:0 0 0 2px var(--paper), 0 0 10px color-mix(in srgb, var(--brass) 70%, transparent);
+  transition:transform .15s;
+}
+.andot:hover{transform:scale(1.3)}
+.andot-mini{
+  display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--brass);
+  margin-right:7px;vertical-align:2px;
+  box-shadow:0 0 6px color-mix(in srgb, var(--brass) 60%, transparent);
+}
+
 /* scrollbars */
 .cat::-webkit-scrollbar,.rail::-webkit-scrollbar,.drawer-body::-webkit-scrollbar{width:10px}
 .cat::-webkit-scrollbar-thumb,.rail::-webkit-scrollbar-thumb,.drawer-body::-webkit-scrollbar-thumb{background:var(--rule);border:3px solid var(--board);border-radius:6px}
@@ -1312,6 +1346,7 @@ body.tab-writing{
     <div class="hrow"><b>Collectors</b><span>Editions only — your buyers, contacts, purchase history, waitlists.</span></div>
     <div class="hrow"><b>Studio</b><span>Analytics for the active register — sales &amp; margins on Editions, stack &amp; momentum on Apps, the word ledger on Writing.</span></div>
     <div class="hrow"><b>Palette</b><span>Colour tools: eyedropper, harmonies, duotone, notan, wall mockup, exports to Procreate/Adobe/GIMP.</span></div>
+    <div class="hrow"><b>Marks &amp; notes</b><span>In Palette, switch to Draw or Note to sketch on a print or pin notes to it. They live only there — a small brass dot on the plate shows a work carries them (click the dot to jump in).</span></div>
     <div class="hrow"><b>Catalogue</b><span>Editions only — a public collector catalogue, no sold counts, no private notes.</span></div>
     <div class="hrow"><b>Vault</b><span>Storage health. Back up bundles every register into one JSON; CSV exports the active one.</span></div>
     <div class="hrow"><b>Import</b><span>On Editions, drag print images anywhere onto the window — titles are read from filenames.</span></div>
@@ -1671,11 +1706,13 @@ function plateHTML(w){
   const fmt = w.format || w.tier || "";
   const closed = w.status==="Sold out"||w.status==="Retired";
   const bits=[fmt,ed,sold].filter(Boolean);
+  const an=annotCount(w.annots);
   return `<div class="plate" data-id="${w.id}">
     <div class="mount">
       <div class="palette" aria-hidden="true"></div>
       <div class="frame ${u?"":"empty"}" data-img="${w.id}">${u?`<img src="${u}" alt="${esc(w.title||"")}">`:"no image"}</div>
       ${closed?`<span class="stamp">${w.status==="Retired"?"Retired":"Sold out"}</span>`:""}
+      ${an?`<button class="andot" data-notes="${w.id}" title="${an} studio mark${an!==1?"s":""} & note${an!==1?"s":""} — open colour tools" aria-label="Open studio notes"></button>`:""}
       <div class="plate-caption">
         <div class="no"><span>${w.order!=null?String(w.order).padStart(2,"0"):"—"}</span><span>${esc(w.year||"")}</span></div>
         <div class="t">${esc(w.title||"Untitled")}</div>
@@ -1694,7 +1731,7 @@ function listRowHTML(w,list,i){
   return `<div class="lrow" data-id="${w.id}">
     <span class="ord">${w.order!=null?String(w.order).padStart(2,"0"):"—"}</span>
     <span class="thumb" data-img="${w.id}">${u?`<img src="${u}">`:""}</span>
-    <span class="title">${esc(w.title||"Untitled")}</span>
+    <span class="title">${annotCount(w.annots)?`<span class="andot-mini" title="Has studio marks & notes"></span>`:""}${esc(w.title||"Untitled")}</span>
     <span class="col tier">${esc(ed)}</span>
     <span class="col year">${w.status?`<span class="status ${statusClass(w.status)}">${esc(w.status)}</span>`:""}</span>
     <span class="ed">${soldTxt}</span>
@@ -2791,7 +2828,7 @@ function dedupeColorsList(list){
 }
 function showPal(){ $("palScrim").classList.add("show"); $("pal").classList.add("show"); }
 async function openPaletteFor(work){
-  palWork=work; palPicked=[]; palView="colour"; palOverlay="none";
+  palWork=work; palPicked=[]; palView="colour"; palOverlay="none"; palMode="sample"; drawing=null;
   palSourceURL = stagedImage ? stagedImage.url : (work? await hydrateUrl(work.id):null);
   palTitleText = work?(work.title||"Untitled"):"This work";
   showPal(); renderPaletteWork();
@@ -2805,21 +2842,100 @@ function loadReference(file){
   showPal(); renderPaletteWork();
 }
 function openPaletteHouse(){ palWork=null; showPal(); renderPaletteHouse(); }
-function closePalette(){ $("palScrim").classList.remove("show"); $("pal").classList.remove("show"); }
+function closePalette(){ closePinEditor(); drawing=null; $("palScrim").classList.remove("show"); $("pal").classList.remove("show"); }
+
+/* ============================================================
+   Marks & notes — a registrar's grease pencil on the print.
+   Strokes + pinned notes live on the work record (annots:{s,n}),
+   render only inside the palette studio, and put a brass dot on
+   the plate so you can see which works carry studio notes.
+   ============================================================ */
+let palMode="sample", drawing=null, annots={s:[],n:[]}, annotSaveT=null;
+function annotEnabled(){ return !!(palWork && works.find(w=>w.id===palWork.id)); }
+function annotCount(a){ return a ? ((a.s||[]).length+(a.n||[]).length) : 0; }
+function loadAnnots(){
+  const w=palWork && works.find(x=>x.id===palWork.id);
+  annots = (w&&w.annots) ? JSON.parse(JSON.stringify(w.annots)) : {s:[],n:[]};
+  if(!Array.isArray(annots.s)) annots.s=[];
+  if(!Array.isArray(annots.n)) annots.n=[];
+}
+async function saveAnnots(){
+  const w=palWork && works.find(x=>x.id===palWork.id); if(!w) return;
+  w.annots=JSON.parse(JSON.stringify(annots)); w.updated=Date.now();
+  if(editing && editing.id===w.id) editing.annots=JSON.parse(JSON.stringify(annots));
+  await put("works",w); await bumpChanges();
+  render();   // the plate's brass dot appears/disappears behind the dialog
+}
+function saveAnnotsDebounced(){ clearTimeout(annotSaveT); annotSaveT=setTimeout(saveAnnots,450); }
+function drawStrokeOn(x,ac,s){
+  x.strokeStyle=s.c; x.lineWidth=Math.max(2,s.w*ac.width); x.beginPath();
+  for(let i=0;i<s.p.length;i+=2){ const X=s.p[i]*ac.width, Y=s.p[i+1]*ac.height; i?x.lineTo(X,Y):x.moveTo(X,Y); }
+  x.stroke();
+}
+function redrawAnnots(){
+  const ac=$("annotCanvas"); if(!ac) return;
+  const x=ac.getContext("2d"); x.clearRect(0,0,ac.width,ac.height);
+  x.lineCap="round"; x.lineJoin="round";
+  for(const s of annots.s) drawStrokeOn(x,ac,s);
+  if(drawing) drawStrokeOn(x,ac,drawing);
+}
+function renderPins(){
+  const L=$("pinLayer"); if(!L) return;
+  L.innerHTML=annots.n.map((n,i)=>
+    `<button class="pin" data-pin="${i}" style="left:${(n.x*100).toFixed(2)}%;top:${(n.y*100).toFixed(2)}%;--pc:${n.c}" title="${esc(n.t)}">${i+1}</button>`
+  ).join("");
+}
+function closePinEditor(){ const d=document.getElementById("pinEdit"); if(d) d.remove(); }
+function placePin(cv,e){
+  const r=cv.getBoundingClientRect();
+  annots.n.push({ x:Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),
+                  y:Math.max(0,Math.min(1,(e.clientY-r.top)/r.height)),
+                  c:(palPicked[0]||"#d9a75a"), t:"" });
+  renderPins(); openPinEditor(annots.n.length-1);
+}
+function openPinEditor(i){
+  const n=annots.n[i]; const L=$("pinLayer"); if(!n||!L) return;
+  closePinEditor();
+  const d=document.createElement("div"); d.className="pin-edit"; d.id="pinEdit";
+  d.style.left=(n.x*100)+"%"; d.style.top=(n.y*100)+"%";
+  d.innerHTML=`<input id="pinText" placeholder="Note on the print…" maxlength="300">
+    <button class="minibtn" id="pinSave">Save</button><button class="minibtn" id="pinDel" title="Delete note">✕</button>`;
+  L.appendChild(d);
+  $("pinText").value=n.t||"";
+  const commit=()=>{ n.t=$("pinText").value.trim();
+    if(!n.t) annots.n.splice(i,1);
+    closePinEditor(); renderPins(); saveAnnotsDebounced(); };
+  $("pinSave").onclick=commit;
+  $("pinDel").onclick=()=>{ annots.n.splice(i,1); closePinEditor(); renderPins(); saveAnnotsDebounced(); };
+  $("pinText").onkeydown=e=>{ e.stopPropagation();
+    if(e.key==="Enter") commit();
+    if(e.key==="Escape"){ closePinEditor(); if(!n.t){ annots.n.splice(i,1); renderPins(); } } };
+  setTimeout(()=>$("pinText").focus(),30);
+}
 async function renderPaletteWork(){
   $("palTitle").textContent="Palette"; $("palSub").textContent=palTitleText;
   const body=$("palBody");
   if(!palSourceURL){ body.innerHTML=`<div class="pal-empty"><h3>No image yet</h3><p>Add the print image to this work (or load a reference), then open colour tools.</p></div>`; return; }
+  const canAnnot=annotEnabled();
   body.innerHTML=`<div class="pal-work">
     <div>
-      <div class="pstage"><canvas class="pcanvas" id="palCanvas"></canvas><svg class="poverlay" id="palOverlaySvg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg></div>
+      <div class="pstage"><div class="pwrap" id="pwrap" data-mode="sample">
+        <canvas class="pcanvas" id="palCanvas"></canvas>
+        <canvas id="annotCanvas" aria-hidden="true"></canvas>
+        <div id="pinLayer"></div>
+        <svg class="poverlay" id="palOverlaySvg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+      </div></div>
       <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+        ${canAnnot?`<div><div class="ptool-h">Tools</div><div class="pseg" id="palModeSeg">
+          <button data-mode="sample" class="on">Sample</button><button data-mode="draw">Draw</button><button data-mode="note">Note</button></div></div>`:""}
         <div><div class="ptool-h">Overlays</div><div class="pseg" id="palOverlaySeg">
           <button data-ov="none" class="on">None</button><button data-ov="thirds">Thirds</button><button data-ov="golden">Golden</button><button data-ov="diag">Diagonals</button><button data-ov="crop">A-crop</button></div></div>
         <div><div class="ptool-h">View</div><div class="pseg" id="palViewSeg">
           <button data-view="colour" class="on">Colour</button><button data-view="value">Value</button><button data-view="duotone">Duotone</button></div></div>
+        ${canAnnot?`<div><div class="ptool-h">Marks</div><div class="pexports">
+          <button class="minibtn" data-annot="undo">Undo mark</button><button class="minibtn" data-annot="clear">Clear marks</button></div></div>`:""}
       </div>
-      <div class="picked-empty" style="margin-top:11px">Tap anywhere on the print to sample a colour — it copies to your clipboard. Duotone maps it to your first two picked colours.</div>
+      <div class="picked-empty" id="palTip" style="margin-top:11px">Tap anywhere on the print to sample a colour — it copies to your clipboard. Duotone maps it to your first two picked colours.</div>
     </div>
     <div class="ptools">
       <div><div class="ptool-h">In this print</div><div class="swrow" id="palExtracted"></div></div>
@@ -2838,6 +2954,31 @@ async function renderPaletteWork(){
   const sc=document.createElement("canvas"); sc.width=cv.width; sc.height=cv.height;
   palSampleCtx=sc.getContext("2d",{willReadFrequently:true}); palSampleCtx.drawImage(palImg,0,0,cv.width,cv.height);
   paintCanvas();
+  // annotation layer — same pixel grid as the print
+  const ac=$("annotCanvas"); ac.width=cv.width; ac.height=cv.height;
+  loadAnnots(); redrawAnnots(); renderPins();
+  if(canAnnot){
+    cv.addEventListener("pointerdown",e=>{
+      if(palMode!=="draw") return;
+      e.preventDefault(); try{cv.setPointerCapture(e.pointerId);}catch(_){}
+      const r=cv.getBoundingClientRect();
+      drawing={c:(palPicked[0]||getComputedStyle(document.body).getPropertyValue("--brass").trim()||"#d9a75a"),
+        w:0.008, p:[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]};
+    });
+    cv.addEventListener("pointermove",e=>{
+      if(!drawing) return;
+      const r=cv.getBoundingClientRect();
+      drawing.p.push(Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)), Math.max(0,Math.min(1,(e.clientY-r.top)/r.height)));
+      redrawAnnots();
+    });
+    const endStroke=()=>{
+      if(!drawing) return;
+      if(drawing.p.length>=4) annots.s.push(drawing);
+      drawing=null; redrawAnnots(); saveAnnotsDebounced();
+    };
+    cv.addEventListener("pointerup",endStroke);
+    cv.addEventListener("pointercancel",endStroke);
+  }
   palExtractedCols=(await extractPalette(palSourceURL))||[];
   renderExtracted(); renderPicked(); setHarmonyFrom(palExtractedCols[0]||null); drawOverlay();
 }
@@ -3337,7 +3478,27 @@ function wire(){
   $("palRef").onclick=()=>$("refInput").click();
   $("refInput").onchange=e=>{ if(e.target.files[0]) loadReference(e.target.files[0]); e.target.value=""; };
   $("palBody").addEventListener("click",e=>{
-    const cv=e.target.closest(".pcanvas"); if(cv){ samplePixel(cv,e); return; }
+    if(e.target.closest("#pinEdit")) return;                 // typing a note — nothing else fires
+    const pin=e.target.closest(".pin"); if(pin){ openPinEditor(parseInt(pin.dataset.pin)); return; }
+    const md=e.target.closest("#palModeSeg button"); if(md){
+      palMode=md.dataset.mode; closePinEditor();
+      $("palModeSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b===md));
+      const pw=$("pwrap"); if(pw) pw.dataset.mode=palMode;
+      const tip=$("palTip"); if(tip) tip.textContent =
+        palMode==="draw" ? "Drag on the print to mark it — the ink follows your last sampled colour." :
+        palMode==="note" ? "Click the print to pin a note; click a pin to edit or remove it." :
+        "Tap anywhere on the print to sample a colour — it copies to your clipboard. Duotone maps it to your first two picked colours.";
+      return;
+    }
+    const an=e.target.closest("[data-annot]"); if(an){
+      if(an.dataset.annot==="undo") annots.s.pop(); else annots.s=[];
+      redrawAnnots(); saveAnnotsDebounced(); return;
+    }
+    const cv=e.target.closest(".pcanvas"); if(cv){
+      if(palMode==="note"&&annotEnabled()){ placePin(cv,e); }
+      else if(palMode!=="draw"){ samplePixel(cv,e); }
+      return;
+    }
     const sw=e.target.closest("[data-hex]"); if(sw){ copyHex(sw.dataset.hex); setHarmonyFrom(sw.dataset.hex); return; }
     const ov=e.target.closest("[data-ov]"); if(ov){ palOverlay=ov.dataset.ov; $("palOverlaySeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b===ov)); drawOverlay(); return; }
     const vw=e.target.closest("[data-view]"); if(vw){ palView=vw.dataset.view; $("palViewSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b===vw)); paintCanvas(); return; }
@@ -3437,6 +3598,8 @@ function wire(){
     if(mv){e.stopPropagation();move(mv.dataset.id,mv.dataset.mv);return;}
     const head=e.target.closest("[data-toggle]");
     if(head){const k=head.dataset.toggle;collapsed.has(k)?collapsed.delete(k):collapsed.add(k);render();return;}
+    const nd=e.target.closest("[data-notes]");
+    if(nd){ e.stopPropagation(); const w=works.find(x=>x.id===nd.dataset.notes); if(w) openPaletteFor(w); return; }
     const card=e.target.closest("[data-id]");
     if(card){
       const item=activeItems().find(x=>x.id===card.dataset.id); if(!item) return;
