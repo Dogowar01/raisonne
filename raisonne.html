@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#151110">
+<!-- Compatibility redirect: the app used to live at raisonne.html and was
+     renamed to index.html. Installed apps whose start_url still points here
+     land on this stub and are bounced to the current app. Same origin, so
+     all saved data (IndexedDB) is untouched. -->
+<meta http-equiv="refresh" content="0; url=./index.html">
+<link rel="canonical" href="./index.html">
+<title>Raisonné — opening…</title>
+<style>
+  html,body{margin:0;height:100%}
+  body{background:#151110;color:#efe4d2;display:flex;align-items:center;justify-content:center;
+       font-family:"Space Grotesk","Segoe UI",system-ui,sans-serif}
+  .m{text-align:center;opacity:.85}
+  .m b{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:500;font-size:26px;display:block;margin-bottom:8px}
+  a{color:#d9a75a}
+</style>
+</head>
+<body>
+  <div class="m"><b>Raisonné</b>Opening the current version… <a href="./index.html">continue</a></div>
+  <script>
+    // Belt-and-braces: replace (not push) so Back doesn't loop here.
+    try { location.replace("./index.html" + location.search + location.hash); }
+    catch (e) { location.href = "./index.html"; }
+  </script>
+</body>
+</html>
