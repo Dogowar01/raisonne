@@ -808,6 +808,17 @@ body.tab-writing{
    transmits. Every animation stands down for reduced-motion.
    ============================================================ */
 /* breathing atmosphere — three slow pools of light behind everything */
+/* painterly city background — hung at the very back, dim enough that the
+   atmosphere glows, grain and vignette all read over it and the artwork
+   stays the loudest thing. Sits under #atmo so the light pools tint it. */
+#citybg{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:url("bg-city.webp") center top/cover no-repeat;
+  opacity:.14;filter:saturate(.85);
+  -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.95) 0%, rgba(0,0,0,.5) 62%, transparent 100%);
+          mask-image:linear-gradient(180deg, rgba(0,0,0,.95) 0%, rgba(0,0,0,.5) 62%, transparent 100%);
+}
+[data-theme="dark"] #citybg{opacity:.16;filter:saturate(.7) brightness(.9)}
 #atmo{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 /* no gaussian blur — the radial gradients are already soft, and large
    blurred layers stall capture/compositing (see perf note on grain) */
@@ -977,6 +988,8 @@ body.tab-writing{
 </style>
 </head>
 <body>
+<!-- painterly city, hung softly at the back of the room -->
+<div id="citybg" aria-hidden="true"></div>
 <!-- breathing atmosphere — three drifting pools of gallery light -->
 <div id="atmo" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 <!-- dust motes in the spotlights -->
