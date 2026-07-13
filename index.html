@@ -649,6 +649,10 @@ body.tab-writing{
   background:radial-gradient(120% 90% at 50% 30%, color-mix(in srgb, var(--board) 82%, var(--accent) 6%), var(--board) 70%);}
 .lock.show{display:flex}
 .lock.show .lock-card{animation:riseIn .4s ease}
+/* unlocking — the screen dissolves and the room phases up behind it */
+.lock.fade{opacity:0;pointer-events:none;transition:opacity 1.15s ease}
+@keyframes appPhase{from{opacity:0;transform:translateY(8px) scale(1.006)}to{opacity:1;transform:none}}
+.app.phasein{animation:appPhase 1.5s cubic-bezier(.22,.61,.36,1) both}
 .lock-card{width:min(360px,90vw);text-align:center;padding:34px 30px;display:flex;flex-direction:column;align-items:center;gap:6px}
 .lock-card .mark{width:80px;height:auto;margin-bottom:10px;filter:drop-shadow(0 2px 10px color-mix(in srgb,var(--brass) 40%,transparent))}
 .lock-card .mark rect{fill:var(--brass)}
@@ -2776,10 +2780,21 @@ function showLock(mode){ lockMode=mode; const L=$("lock");
   $("lockCancel").style.display = mode==="unlock" ? "none" : "";
   L.classList.add("show"); setTimeout(()=>$("lockInput").focus(),40);
 }
-function hideLock(){ $("lock").classList.remove("show"); }
+function hideLock(slow){
+  const L=$("lock");
+  if(slow){                                    // correct passcode — dissolve, don't snap
+    const app=document.querySelector(".app");
+    if(app){ app.classList.remove("phasein"); void app.offsetWidth; app.classList.add("phasein");
+      setTimeout(()=>app.classList.remove("phasein"),1600); }
+    L.classList.add("fade");
+    const done=()=>{ L.classList.remove("show","fade"); L.removeEventListener("transitionend",done); };
+    L.addEventListener("transitionend",done);
+    setTimeout(done,1300);                      // fallback if transitionend is missed
+  } else { L.classList.remove("show","fade"); }
+}
 async function lockSubmit(){
   const v=$("lockInput").value;
-  if(lockMode==="unlock"){ if(await verifyPass(v)) hideLock();
+  if(lockMode==="unlock"){ if(await verifyPass(v)) hideLock(true);
     else { $("lockMsg").textContent="Not right — try again."; $("lockInput").value=""; $("lockInput").focus(); } return; }
   if(lockMode==="remove"){ if(await verifyPass(v)){ await clearLock(); hideLock(); toast("Privacy lock removed"); updateLockRow(); }
     else $("lockMsg").textContent="Not right."; return; }
@@ -4105,7 +4120,7 @@ function wire(){
   // privacy lock
   $("vaultLockBtn").onclick=async()=>{ closeVault(); if(await isLockSet()) showLock("remove"); else { lockPending=""; showLock("set"); } };
   $("lockBtn").onclick=lockSubmit;
-  $("lockCancel").onclick=hideLock;
+  $("lockCancel").onclick=()=>hideLock();
   $("lockInput").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); lockSubmit(); } });
   document.addEventListener("click",e=>{ if($("vault").classList.contains("show") && !e.target.closest("#vault") && !e.target.closest("#btnVault")) closeVault(); });
   $("btnCsv").onclick=exportCSV;
