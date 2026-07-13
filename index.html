@@ -916,11 +916,11 @@ body.tab-writing{
 #citybg{
   position:fixed;inset:0;z-index:0;pointer-events:none;
   background:url("bg-city.webp") center top/cover no-repeat;
-  opacity:.14;filter:saturate(.85);
-  -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.95) 0%, rgba(0,0,0,.5) 62%, transparent 100%);
-          mask-image:linear-gradient(180deg, rgba(0,0,0,.95) 0%, rgba(0,0,0,.5) 62%, transparent 100%);
+  opacity:.24;filter:saturate(.95);
+  -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.98) 0%, rgba(0,0,0,.6) 70%, transparent 100%);
+          mask-image:linear-gradient(180deg, rgba(0,0,0,.98) 0%, rgba(0,0,0,.6) 70%, transparent 100%);
 }
-[data-theme="dark"] #citybg{opacity:.16;filter:saturate(.7) brightness(.9)}
+[data-theme="dark"] #citybg{opacity:.28;filter:saturate(.8) brightness(.95)}
 #atmo{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 /* no gaussian blur — the radial gradients are already soft, and large
    blurred layers stall capture/compositing (see perf note on grain) */
