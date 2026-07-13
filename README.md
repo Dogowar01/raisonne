@@ -113,6 +113,11 @@ in. Back up before anything risky.
   costs), remaining and closed editions; breakdowns by collection, best sellers, and revenue by year.
 - **The vault** (toolbar **Vault**): requests **persistent storage** so the browser won't evict your
   data, and shows a usage meter, backup age and a health warning. Back-ups now include collectors too.
+- **Snapshots (rollback):** the vault keeps automatic rolling restore points — a snapshot is taken
+  on open and after every handful of changes (all your records minus the image blobs, so it's cheap),
+  keeping the last dozen. One-click **Restore** brings back records that were deleted or changed since
+  then **without clobbering anything newer** you've added. A safety snapshot is taken before any
+  restore. (Images live in **Back up**'s full file copy.) Take one manually any time with *Take snapshot*.
 
 ## Palette studio (colour tools for making art)
 

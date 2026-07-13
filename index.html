@@ -649,8 +649,16 @@ body.tab-writing{
 .vault-note{color:var(--ink-faint);font-size:10px;line-height:1.5;margin-top:10px}
 .vault-actions{display:flex;gap:8px;margin-top:14px}
 .vault-actions .minibtn{flex:1;justify-content:center;padding:7px}
-
-/* studio dashboard */
+.vault-snaps-h{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  margin-top:16px;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+.vault-snaps-h .minibtn{font-size:9px;padding:3px 8px;text-transform:none;letter-spacing:.02em}
+.vault-snaps{max-height:168px;overflow-y:auto;margin-top:8px;display:flex;flex-direction:column;gap:5px}
+.snap-empty{font-family:var(--mono);font-size:10px;color:var(--ink-faint);letter-spacing:.02em;padding:6px 0}
+.snap-row{display:flex;align-items:center;gap:9px;padding:6px 8px;background:var(--field);border:1px solid var(--rule-soft);border-radius:5px}
+.snap-when{flex:1;min-width:0;font-family:var(--mono);font-size:10.5px;color:var(--ink)}
+.snap-ago{color:var(--ink-faint)}
+.snap-n{font-family:var(--mono);font-size:10px;color:var(--ink-soft);white-space:nowrap}
+.snap-row .minibtn{font-size:9.5px;padding:3px 8px}
 .dash-scrim{position:fixed;inset:0;background:rgba(20,14,10,.5);backdrop-filter:blur(2px);z-index:100;opacity:0;pointer-events:none;transition:opacity .22s}
 .dash-scrim.show{opacity:1;pointer-events:auto}
 .dash{
@@ -1268,6 +1276,8 @@ body.tab-writing{
   <div class="vault-meter"><i id="vaultBar"></i></div>
   <div class="vault-row"><span id="vaultUse">—</span><span id="vaultQuota" style="color:var(--ink-faint)"></span></div>
   <div class="vault-note" id="vaultNote"></div>
+  <div class="vault-snaps-h">Snapshots — roll back<button class="minibtn" id="vaultSnapBtn" title="Capture a snapshot now">Take snapshot</button></div>
+  <div class="vault-snaps" id="vaultSnaps"></div>
   <div class="vault-actions">
     <button class="minibtn" id="vaultBackupBtn">Back up now</button>
     <button class="minibtn" id="vaultClose">Close</button>
@@ -1361,7 +1371,7 @@ body.tab-writing{
     <div class="hrow"><b>Palette</b><span>Colour tools: eyedropper, harmonies, duotone, notan, wall mockup, exports to Procreate/Adobe/GIMP.</span></div>
     <div class="hrow"><b>Marks &amp; notes</b><span>In Palette, switch to Draw or Note to sketch on a print or pin notes to it. They live only there — a small brass dot on the plate shows a work carries them (click the dot to jump in).</span></div>
     <div class="hrow"><b>Catalogue</b><span>Editions only — a public collector catalogue, no sold counts, no private notes.</span></div>
-    <div class="hrow"><b>Vault</b><span>Storage health. Back up bundles every register into one JSON; CSV exports the active one.</span></div>
+    <div class="hrow"><b>Vault</b><span>Storage health, backup, and <b>snapshots</b> — automatic rollback points; one-click Restore brings back deleted or changed records without touching newer ones.</span></div>
     <div class="hrow"><b>Import</b><span>On Editions, drag print images anywhere onto the window — titles are read from filenames.</span></div>
     <div class="dash-h">Keys</div>
     <div class="hrow"><b>/</b><span>Focus search</span></div>
@@ -1377,7 +1387,7 @@ body.tab-writing{
 /* ============================================================
    Storage — IndexedDB (works metadata + preview blobs + settings)
    ============================================================ */
-const DB_NAME="raisonne", DB_VER=3;
+const DB_NAME="raisonne", DB_VER=4;
 let _db=null;
 function db(){
   return new Promise((res,rej)=>{
@@ -1391,6 +1401,7 @@ function db(){
       if(!d.objectStoreNames.contains("collectors")) d.createObjectStore("collectors",{keyPath:"id"});
       if(!d.objectStoreNames.contains("apps")) d.createObjectStore("apps",{keyPath:"id"});
       if(!d.objectStoreNames.contains("writings")) d.createObjectStore("writings",{keyPath:"id"});
+      if(!d.objectStoreNames.contains("snapshots")) d.createObjectStore("snapshots",{keyPath:"id"});
     };
     r.onsuccess=e=>{_db=e.target.result;res(_db)};
     r.onerror=e=>rej(e.target.error);
@@ -1415,6 +1426,7 @@ let firstPaint=true;         // animate the catalogue in only on first load
 let collectors=[];           // CRM records
 let activeTab="editions";    // "editions" | "apps" | "writing"
 let apps=[], writings=[];
+let snapshots=[], snapChangeCount=0, lastAutoSnap=0;
 let editingApp=null, stagedAppImage=null;
 let editingWriting=null, stagedWritingImage=null;
 const $=id=>document.getElementById(id);
@@ -2299,8 +2311,55 @@ function updateNudge(){
     : "Back up everything (metadata + images)";
   updateVaultBadge();
 }
-async function bumpChanges(){ pendingChanges++; await put("meta",{key:"pendingChanges",val:pendingChanges}); updateNudge(); }
+async function bumpChanges(){ pendingChanges++; await put("meta",{key:"pendingChanges",val:pendingChanges}); updateNudge(); maybeAutoSnapshot(); }
 async function resetNudge(){ pendingChanges=0; await put("meta",{key:"pendingChanges",val:0}); await put("meta",{key:"lastBackup",val:Date.now()}); updateNudge(); }
+
+/* ---------- Snapshots — automatic rolling rollback points ----------
+   A snapshot is a full copy of every register's *records* (works, apps,
+   writings, collectors) minus the image blobs — so it's cheap and
+   captures the irreplaceable part: all your text, sales, notes and marks.
+   One is taken automatically after a handful of changes; restoring one
+   merges its records back in (undeletes / reverts) without touching
+   anything newer. Images are covered by Back up (the full file copy). */
+const SNAP_MAX=12, SNAP_EVERY=8, SNAP_MIN_GAP=120000;
+function snapshotData(){
+  const strip=list=>list.map(x=>{ const {_image,...rest}=x; return JSON.parse(JSON.stringify(rest)); });
+  return { works:strip(works), apps:strip(apps), writings:strip(writings), collectors:strip(collectors) };
+}
+async function takeSnapshot(auto){
+  const data=snapshotData();
+  const counts={works:works.length,apps:apps.length,writings:writings.length,collectors:collectors.length};
+  if(!counts.works&&!counts.apps&&!counts.writings&&!counts.collectors) return;
+  const snap={id:uid(),at:Date.now(),auto:!!auto,counts,data};
+  await put("snapshots",snap); snapshots.push(snap);
+  // keep the most recent SNAP_MAX
+  snapshots.sort((a,b)=>b.at-a.at);
+  while(snapshots.length>SNAP_MAX){ const old=snapshots.pop(); await del("snapshots",old.id); }
+  lastAutoSnap=Date.now(); snapChangeCount=0;
+  if(!auto) toast("Snapshot saved");
+  if($("vault").classList.contains("show")) renderSnapshots();
+}
+function maybeAutoSnapshot(){
+  snapChangeCount++;
+  if(snapChangeCount>=SNAP_EVERY && Date.now()-lastAutoSnap>SNAP_MIN_GAP) takeSnapshot(true);
+}
+async function restoreSnapshot(id){
+  const s=snapshots.find(x=>x.id===id); if(!s) return;
+  const when=new Date(s.at).toLocaleString();
+  if(!confirm(`Restore the snapshot from ${when}?\n\nIt brings back any records that were deleted or changed since then. Newer records you've added are kept. (Images aren't part of snapshots — use a Back up file for those.)`)) return;
+  await takeSnapshot(false);   // safety net before we change anything
+  const merge=async(store,arr,list)=>{
+    for(const rec of arr){ if(!rec.id) rec.id=uid(); await put(store,rec);
+      const i=list.findIndex(x=>x.id===rec.id); if(i>=0) list[i]=rec; else list.push(rec); }
+  };
+  await merge("works",s.data.works||[],works);
+  await merge("apps",s.data.apps||[],apps);
+  await merge("writings",s.data.writings||[],writings);
+  await merge("collectors",s.data.collectors||[],collectors);
+  urls.forEach(u=>URL.revokeObjectURL(u)); urls.clear();
+  refreshBuyerList(); render();
+  toast(`Restored ${s.counts.works+s.counts.apps+s.counts.writings} records from ${when}`);
+}
 
 /* ---------- The vault — persistent storage + usage meter ---------- */
 let storagePersisted=false;
@@ -2333,7 +2392,21 @@ async function openVault(){
   $("vaultNote").textContent = storagePersisted
     ? "Your data is marked persistent — the browser won't evict it. Still, back up regularly: it's the only copy."
     : "The browser hasn't granted persistent storage yet. Back up now, and it usually grants after the app is used or installed.";
+  renderSnapshots();
   $("vault").classList.add("show");
+}
+function renderSnapshots(){
+  const el=$("vaultSnaps"); if(!el) return;
+  if(!snapshots.length){ el.innerHTML=`<div class="snap-empty">No snapshots yet — one saves automatically as you work.</div>`; return; }
+  const rel=t=>{ const s=(Date.now()-t)/1000; if(s<90)return"just now"; if(s<3600)return Math.round(s/60)+"m ago";
+    if(s<86400)return Math.round(s/3600)+"h ago"; return Math.round(s/86400)+"d ago"; };
+  el.innerHTML=[...snapshots].sort((a,b)=>b.at-a.at).map(s=>{
+    const c=s.counts, tot=c.works+c.apps+c.writings;
+    return `<div class="snap-row"><div class="snap-when">${new Date(s.at).toLocaleString([],{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})}
+      <span class="snap-ago">${rel(s.at)}${s.auto?"":" · manual"}</span></div>
+      <span class="snap-n">${tot} rec${tot!==1?"s":""}</span>
+      <button class="minibtn" data-restore="${s.id}">Restore</button></div>`;
+  }).join("");
 }
 function closeVault(){ $("vault").classList.remove("show"); }
 
@@ -3543,6 +3616,8 @@ function wire(){
   $("btnVault").onclick=e=>{ e.stopPropagation(); $("vault").classList.contains("show")?closeVault():openVault(); };
   $("vaultClose").onclick=closeVault;
   $("vaultBackupBtn").onclick=()=>{ closeVault(); exportBackup(); };
+  $("vaultSnapBtn").onclick=()=>takeSnapshot(false);
+  $("vaultSnaps").addEventListener("click",e=>{ const b=e.target.closest("[data-restore]"); if(b) restoreSnapshot(b.dataset.restore); });
   document.addEventListener("click",e=>{ if($("vault").classList.contains("show") && !e.target.closest("#vault") && !e.target.closest("#btnVault")) closeVault(); });
   $("btnCsv").onclick=exportCSV;
   $("btnCatalogue").onclick=exportCatalogue;
@@ -3830,10 +3905,14 @@ async function boot(){
   collectors=await all("collectors");
   apps=await all("apps");
   writings=await all("writings");
+  snapshots=await all("snapshots");
+  if(snapshots.length) lastAutoSnap=Math.max(...snapshots.map(s=>s.at));
   document.body.classList.add("tab-editions");
   $("filterStatus").innerHTML=`<option value="">All statuses</option>`+statusOptionsFor("editions").map(s=>`<option>${s}</option>`).join("");
   render();
   initVault();
+  // secure a restore point on open when the newest is stale (or none exists)
+  if((works.length||apps.length||writings.length) && Date.now()-lastAutoSnap>6*3600000) setTimeout(()=>takeSnapshot(true),1500);
 }
 /* Installability — surface an in-app Install button when the browser
    offers one, so you can install straight from the loaded page. */
