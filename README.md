@@ -119,6 +119,29 @@ in. Back up before anything risky.
   then **without clobbering anything newer** you've added. A safety snapshot is taken before any
   restore. (Images live in **Back up**'s full file copy.) Take one manually any time with *Take snapshot*.
 
+## Everyday tools
+
+- **Home dashboard:** click the **wordmark** for the whole studio at a glance — a card for each
+  register (Editions / Apps / Writing) with its own accent and headline stats, a **What's next**
+  list from your follow-ups, **Recently touched** across all three registers, and a backup-health
+  footer with one-click Back up / Vault / Agenda.
+- **Quick-find (⌘K / Ctrl+K):** one keystroke to anything — start typing and jump straight to any
+  work, app, page or collector. Arrow keys to move, Enter to open.
+- **Agenda (dates & follow-ups):** a lightweight to-do tied to the studio — a deadline, a market
+  day, a collector to chase. Items group into **Overdue / Today / This week / Later**, and the
+  toolbar **Agenda** button carries a badge for what's due now. Follow-ups travel in your backups.
+- **CSV import:** bulk-add rows into whichever register is active — column headers are matched to
+  fields (quoted fields with commas handled), so you can seed the app from a spreadsheet. (CSV
+  **export** still exports the active register the same way.)
+- **Tearsheet:** from any saved edition (its card, or exhibition view) generate a **one-piece
+  sheet** — the image plus title, series, year, medium, edition and availability on studio
+  letterhead — as a self-contained HTML page that opens and downloads. One artwork, one page, for
+  a single collector or a wall label.
+- **Privacy lock (optional):** set a passcode in the **Vault** and the app opens behind a soft lock
+  screen. It's a **privacy screen, not encryption** — your data still lives in plain IndexedDB and
+  a determined person with the device can reach it; the lock just keeps a casual passer-by out.
+  Only a salted SHA-256 hash of the passcode is stored, and it can always be removed from the Vault.
+
 ## Palette studio (colour tools for making art)
 
 Open **Palette** in the toolbar (studio-wide) or **Colour tools** on a work's card.
