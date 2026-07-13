@@ -11,7 +11,7 @@
    Bump CACHE to retire old caches on the next visit.
    ============================================================ */
 "use strict";
-const CACHE = "raisonne-v27";
+const CACHE = "raisonne-v28";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./bg-city.webp"];
 
 self.addEventListener("install", e => {

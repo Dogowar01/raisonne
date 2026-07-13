@@ -119,6 +119,24 @@ in. Back up before anything risky.
   then **without clobbering anything newer** you've added. A safety snapshot is taken before any
   restore. (Images live in **Back up**'s full file copy.) Take one manually any time with *Take snapshot*.
 
+## Studio documents
+
+Three self-contained pages you can print or save as PDF, all in the studio's own type and colours.
+They read your **Studio details** (click the wordmark → *Studio details*): studio & artist name,
+location, contact, ABN, and whether you're **registered for GST** — kept privately on the device
+and carried in your backups.
+
+- **Certificate of Authenticity** (the **COA** button on a sale): a gallery-grade certificate — a
+  brass studio seal, the artwork itself, a ghost edition numeral, provenance rows, the artist's
+  signature line and an accession code.
+- **Invoice / receipt** (the **Inv** button on a sale): a proper transaction document on studio
+  letterhead — auto-numbered, buyer, the impression as a line item, and (if you're GST-registered)
+  a 10% GST line. A *Reserved* sale prints as a **Tax Invoice** with payment terms; a *Paid* or
+  *Shipped* sale prints as a stamped **Receipt**.
+- **Tax summary** (Studio dashboard → *Print summary*): your sales grouped by **Australian financial
+  year** (1 Jul – 30 Jun) — impressions sold, gross, GST, per-print costs and net — a bookkeeping
+  aid to hand your accountant. The dashboard also shows the same FY breakdown inline.
+
 ## Everyday tools
 
 - **Home dashboard:** click the **wordmark** for the whole studio at a glance — a card for each
