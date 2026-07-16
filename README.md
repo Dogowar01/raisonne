@@ -1,21 +1,29 @@
 # Raisonné
 
-A private registrar for **Signal9 Studio** — three lightweight registers in one single-file,
+A private registrar for **Signal9 Studio** — four lightweight registers in one single-file,
 offline-first app, no backend: **Editions** (fine-art print editions, the full studio suite),
-**Apps** (what you're building), and **Writing** (what you're writing). See
-[`raisonne-brief.md`](raisonne-brief.md) for the original Editions spec.
+**Stock** (physical inventory on hand), **Apps** (what you're building), and **Writing**
+(what you're writing). See [`raisonne-brief.md`](raisonne-brief.md) for the original Editions spec.
 
-## Three registers, one shell
+## Four registers, one shell
 
-A tab bar in the masthead (**Editions · Apps · Writing**) switches between them. All three share
-the same gallery-at-night shell — atmosphere, dark/light theme, fonts, the fractured mark,
+A tab bar in the masthead (**Editions · Stock · Apps · Writing**) switches between them. All four
+share the same gallery-at-night shell — atmosphere, dark/light theme, fonts, the fractured mark,
 per-image palette glow, and exhibition view — but each has its own IndexedDB store, its own
 tailored fields, and **its own accent colour and room atmosphere**: Editions keeps the archival
-verdigris/brass; Apps runs on a cool circuit-blue; Writing on a literary plum. The brass mark and
-wordmark stay constant across all three — that's the studio's signature, not a section's.
+verdigris/brass; Stock warms to a kiln terracotta; Apps runs on a cool circuit-blue; Writing on a
+literary plum. The brass mark and wordmark stay constant across all four — that's the studio's
+signature, not a section's.
 
 - **Editions** — the full studio suite: sales register, collectors, market mode, studio dashboard,
   palette studio, collector catalogue, certificates. Unchanged, and still the primary register.
+- **Stock** — the stockroom: what you physically have on hand — prints, cards, bookmarks,
+  stickers, posters, packaging. Each line has a category, variant (size/finish), a **quantity with
+  − / + steppers right on the card** (tap − as things sell at a market — no drawer needed), a
+  **low-stock alert threshold**, unit cost, sell price, and where it lives (which tub/drawer).
+  Status is derived from the count — **In stock / Low / Out** — with an "Out" stamp on empty lines
+  and a low/out tally up top. Its Studio dashboard shows units and **retail/cost value on hand**,
+  a by-category breakdown, and a **"running low — reorder or reprint"** list.
 - **Apps** — a lightweight project shelf: name, one-line pitch, status (Idea/Building/Shipped/
   Archived), stack tags, repo/live links, notes, an optional screenshot. Grouped by status.
 - **Writing** — a lightweight manuscript index: title, type, status (Idea/Drafting/Editing/
@@ -23,11 +31,11 @@ wordmark stay constant across all three — that's the studio's signature, not a
   Grouped by status. (Not a writing tool — if you want the fuller writing-companion experience,
   that's what Ballast is for; this is just an at-a-glance register.)
 
-Search, grid/ledger view, exhibition view (click the artwork to view it large), CSV export,
-and undo-safe delete all work the same way across all three tabs. **Back up** always bundles
+Search, grid/ledger view, exhibition view (click the artwork to view it large), CSV export/import,
+and undo-safe delete all work the same way across all four tabs. **Back up** always bundles
 every register (plus collectors) into one JSON; **CSV** exports whichever tab is active.
-Editions-only tools (Market, Collectors, Studio, Palette, Catalogue, Print) simply hide on the
-other two tabs.
+Editions-only tools (Market, Collectors, Palette, Catalogue, Print) simply hide on the
+other tabs.
 
 ## Files
 
